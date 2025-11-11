@@ -1,0 +1,40 @@
+# LocalAngel Data, Firebase & Security Rules
+
+
+globs: ["lib/**/*.dart", "functions/**/*.ts", "firebase/**/*.rules"]
+priority: 95
+
+
+## Privacy & Safety
+
+
+- Treat all user data as sensitive (location, health, behavior). Minimize collection; require explicit consent flows.
+- Separate roles: `individual`, `guardian`, `family`, `admin` via Firebase Custom Claims. Enforce in security rules.
+
+
+## Firestore Modeling
+
+
+- Collections:
+- `users/{uid}` (profile, role claim mirror, minimal public fields)
+- `guardians/{gid}` (verification, rating)
+- `links/{linkId}` (uid↔gid relationships with status)
+- `alerts/{alertId}` (createdBy, type, status, geo, assignedGid)
+- `checkins/{checkinId}` (daily check-ins, mood, timestamp)
+- `devices/{deviceId}` (BLE pairing, lastSeen, ownerUid)
+- No PII in document IDs. Timestamps are server timestamps.
+
+
+## Rules of Thumb
+
+
+- No secret keys in client. Use HTTPS Callable Cloud Functions for privileged actions (assign roles, escalations).
+- Validate writes server-side where business invariants matter (e.g., guardian verification).
+
+
+## Security Rules (high-level)
+
+
+- Use `rules_version = '2'`.
+- Match on collections with allow expressions checking auth, role claims, and ownership.
+- Provide a test matrix (unit tests for rules) before shipping any feature touching data.

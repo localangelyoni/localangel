@@ -1,0 +1,35 @@
+{
+  "@@locale": "he",
+  "appTitle": "מלאך שומר",
+  "settings_title": "הגדרות",
+  "settings_profile_picture": "תמונת פרופיל",
+  "settings_upload_photo": "העלה תמונה",
+  "settings_profile_details": "פרטי פרופיל",
+  "settings_full_name": "שם מלא",
+  "settings_phone": "מספר טלפון",
+  "settings_available_to_help": "זמינ/ה לעזור",
+  "settings_cancel": "ביטול",
+  "settings_save": "שמור שינויים",
+  "settings_logout_title": "התנתקות מהחשבון",
+  "settings_logout": "התנתק",
+  "language": "שפה",
+  "language_hebrew": "עברית",
+  "language_english": "English",
+  "welcome_title": "ברוכים הבאים ל‑מלאך שומר",
+  "welcome_subtitle": "קהילה מחבקת, ביטחון בזמן אמת, וחוויית יומיום טובה יותר.",
+  "welcome_start": "התחל/י את המסע",
+  "welcome_go_home": "מעבר לדף הבית"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+# LocalAngel Architecture Rules
+
+
+globs: ["lib/**/*.dart", "test/**/*.dart", "integration_test/**/*.dart"]
+priority: 90
+
+
+aim: Ensure Clean Architecture + BLoC with explicit boundaries and SRP.
+
+
+## Directory Layout (enforce & generate)
+
+
+- `lib/`
+- `core/` (error, result types, utilities, env, routing, di)
+- `features/`
+- `<feature_name>/`
+- `domain/` → `entities/`, `value_objects/`, `repositories/` (interfaces), `usecases/`
+- `data/` → `models/` (freezed + json_serializable), `datasources/` (firebase, local), `repositories_impl/`
+- `presentation/` → `bloc/`, `pages/`, `widgets/` (atoms/molecules/organisms)
+- `l10n/` (localization)
+
+
+## BLoC Rules
+
+
+- Each page/screen owns *one* coordinator Bloc/Cubit; heavy sub-flows get their own scoped blocs.
+- UI never holds business logic; it dispatches events and reacts to states only.
+- Prefer `BlocListener` for side-effects (snackbars, navigation) and `BlocBuilder/BlocSelector` for rendering.
+- States are immutable (Freezed) and minimal; events describe intent.
+
+
+## Use Cases
+
+
+- One class per user action (`CheckInGuardian`, `TriggerEmergency`, `PairBleDevice`). Use FP-style return (`Either<Failure, T>` or `Result<T>`).
+
+
+## Repositories & Data Sources
+
+
+- Repositories are interfaces in `domain`; concrete impls in `data` orchestrate Firestore/REST/BLE.
+- Never expose Firebase types above `data` layer. Map to domain entities.
+
+
+## Dependency Injection
+
+
+- Centralize with `get_it` (service loc) or `riverpod`-style providers; prefer `get_it` here for simplicity. Expose factories for blocs/use cases.
+
+
+## Error Handling
+
+
+- Use sealed failures (Freezed unions). Surfaces: toast/snackbar with user-friendly copy; log to Crashlytics.
+
+
+## Telemetry
+
+
+- Wrap analytics/events in an interface in `core/telemetry`. No direct calls from widgets.

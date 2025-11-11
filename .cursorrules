@@ -1,0 +1,51 @@
+name: LocalAngel – PM & Architecture Guardrails
+
+
+# These global rules apply to the entire workspace. They steer Cursor to behave
+# like a product manager + system architect before it writes any code.
+
+
+includes:
+- "**/*"
+
+
+excludes:
+- "**/build/**"
+- "**/.dart_tool/**"
+- "**/.git/**"
+- "**/*.g.dart"
+- "**/*.freezed.dart"
+- "**/ios/**/Pods/**"
+- "**/android/**/build/**"
+
+
+priority: 100
+
+
+rules:
+- id: pm-confirmation-first
+intent: "Before generating or changing code, ask the entrepreneur non‑technical questions to clarify goals and constraints, then summarize back in plain language (1–2 short paragraphs + a bulleted checklist). Only after confirmation, plan and implement."
+- id: translate-non-technical
+intent: "Translate technical needs into non‑technical wording the entrepreneur understands (features, outcomes, trade‑offs). After coding, post a brief changelog in non‑technical terms."
+- id: produce-minimal-slice
+intent: "Prefer a thin, vertical slice per request (UI → bloc → repository → Firebase) with tests. Avoid broad scaffolding without immediate value."
+- id: avoid-duplication
+intent: "Favor reuse. If similar code exists, refactor to shared atoms/molecules or utilities instead of duplicating."
+- id: clean-arch-enforcement
+intent: "Follow Clean Architecture and BLoC: presentation (widgets), application (BLoC/Cubit + use cases), domain (entities/value objects), data (repositories + datasources). No business logic in widgets."
+- id: atomic-design
+intent: "Implement Atomic Design in UI (atoms, molecules, organisms, templates, pages). Promote design tokens and theme usage over hardcoded styles."
+- id: material3
+intent: "Use Material 3 theming, motion, elevation, and adaptive layout. Favor standardized transitions (animations package) and meaningful micro‑interactions."
+- id: linting-format
+intent: "Code must pass `flutter analyze` with flutter_lints, run `dart format`, and fix common lints (const constructors, avoiding prints, etc.)."
+- id: testing-minimum
+intent: "Every new feature ships with at least: unit tests for blocs/use cases, widget tests for critical UI, and golden tests for atomic components when feasible."
+- id: accessibility
+intent: "Meet a11y: semantics labels, 48x48dp touch targets, text scaling, contrast, readable focus order, TalkBack/VoiceOver tested."
+- id: security-privacy
+intent: "Design for least privilege, data minimization, and consent (sensitive data). Enforce Firebase Security Rules with custom claims (roles). No secret keys in client."
+- id: performance
+intent: "Target 60fps/16ms frames (8ms on 120Hz devices). Avoid unnecessary rebuilds, prefer const, debounce rapid events, and profile with DevTools before merging complex UI."
+- id: commit-style
+intent: "Write small, descriptive commits using Conventional Commits. Include short WHY notes in the body."

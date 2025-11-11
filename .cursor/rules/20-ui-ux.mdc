@@ -1,0 +1,40 @@
+# LocalAngel UI/UX & Atomic Design Rules
+
+
+globs: ["lib/**/*.dart"]
+priority: 85
+
+
+## Atomic Design & Theming
+
+
+- Organize UI under `lib/design_system/`:
+- `tokens/` (spacing, radii, durations, breakpoints, typography)
+- `atoms/`, `molecules/`, `organisms/`, `templates/`
+- Enforce Material 3: color scheme from a seed; responsive breakpoints; motion patterns via `animations`.
+- Typography via `google_fonts`; no raw `TextStyle` inline—use tokens.
+
+
+## Components
+
+
+- Build reusable atoms (LAButton, LAIconButton, LAChip, LATextField), compose into molecules (UserCard, RewardTile), then organisms (GuardianList, AlertTimeline), then templates (DashboardTemplate).
+- All components accept `Key`, expose minimal props, and are side‑effect free.
+
+
+## Accessibility
+
+
+- Provide `semanticsLabel`/`Tooltip` for icon-only controls; ensure 48x48dp min hit targets; support text scaling; test with TalkBack/VoiceOver.
+
+
+## Motion & Polish
+
+
+- Prefer subtle motion (`FadeThroughTransition`, `SharedAxisTransition`) and micro‑interactions on primary actions.
+
+
+## Visual Quality
+
+
+- Zero magic numbers; use design tokens. Avoid inline colors except in tokens/theme.

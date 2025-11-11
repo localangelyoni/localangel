@@ -1,0 +1,35 @@
+{
+  "@@locale": "en",
+  "appTitle": "LocalAngel",
+  "settings_title": "Settings",
+  "settings_profile_picture": "Profile picture",
+  "settings_upload_photo": "Upload photo",
+  "settings_profile_details": "Profile details",
+  "settings_full_name": "Full name",
+  "settings_phone": "Phone number",
+  "settings_available_to_help": "Available to help",
+  "settings_cancel": "Cancel",
+  "settings_save": "Save changes",
+  "settings_logout_title": "Sign out of account",
+  "settings_logout": "Sign out",
+  "language": "Language",
+  "language_hebrew": "עברית",
+  "language_english": "English",
+  "welcome_title": "Welcome to LocalAngel",
+  "welcome_subtitle": "A caring community, real-time safety, and a better everyday.",
+  "welcome_start": "Start your journey",
+  "welcome_go_home": "Go to home"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
