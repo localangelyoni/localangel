@@ -7,12 +7,7 @@ import 'auth_repository.dart';
 import 'biometric_lock_service.dart';
 
 class AuthState {
-  const AuthState({
-    required this.user,
-    required this.locked,
-    required this.biometricSupported,
-    required this.biometricEnabled,
-  });
+  const AuthState({required this.user, required this.locked, required this.biometricSupported, required this.biometricEnabled});
 
   final User? user;
   final bool locked;
@@ -20,28 +15,32 @@ class AuthState {
   final bool biometricEnabled;
 
   AuthState copyWith({User? user, bool? locked, bool? biometricSupported, bool? biometricEnabled}) => AuthState(
-        user: user ?? this.user,
-        locked: locked ?? this.locked,
-        biometricSupported: biometricSupported ?? this.biometricSupported,
-        biometricEnabled: biometricEnabled ?? this.biometricEnabled,
-      );
+    user: user ?? this.user,
+    locked: locked ?? this.locked,
+    biometricSupported: biometricSupported ?? this.biometricSupported,
+    biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+  );
 }
 
 class AuthController extends StateNotifier<AuthState> {
-  AuthController(this._repo, this._lock) : super(const AuthState(user: null, locked: false, biometricSupported: false, biometricEnabled: false)) {
-    _sub = _repo.authStateChanges().listen((u) async {
-      try {
-        final supported = await _lock.isBiometricSupported();
-        final enabled = await _lock.isBiometricEnabled();
-        state = state.copyWith(user: u, biometricSupported: supported, biometricEnabled: enabled);
-      } catch (e) {
-        // If biometric check fails, continue without biometrics
-        state = state.copyWith(user: u, biometricSupported: false, biometricEnabled: false);
-      }
-    }, onError: (error) {
-      // If stream fails, just set user to null
-      state = state.copyWith(user: null);
-    });
+  AuthController(this._repo, this._lock)
+    : super(const AuthState(user: null, locked: false, biometricSupported: false, biometricEnabled: false)) {
+    _sub = _repo.authStateChanges().listen(
+      (u) async {
+        try {
+          final supported = await _lock.isBiometricSupported();
+          final enabled = await _lock.isBiometricEnabled();
+          state = state.copyWith(user: u, biometricSupported: supported, biometricEnabled: enabled);
+        } catch (e) {
+          // If biometric check fails, continue without biometrics
+          state = state.copyWith(user: u, biometricSupported: false, biometricEnabled: false);
+        }
+      },
+      onError: (error) {
+        // If stream fails, just set user to null
+        state = state.copyWith(user: null);
+      },
+    );
   }
 
   final AuthRepository _repo;
@@ -70,7 +69,3 @@ class AuthController extends StateNotifier<AuthState> {
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) => throw UnimplementedError());
 final biometricLockServiceProvider = Provider<BiometricLockService>((ref) => throw UnimplementedError());
-
-
-
-
