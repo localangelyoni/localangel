@@ -7,8 +7,14 @@ enum SocialProvider { google, apple, microsoft, facebook }
 abstract class AuthRepository {
   Stream<User?> authStateChanges();
 
-  Future<UserCredential> signInWithEmail({required String email, required String password});
-  Future<UserCredential> signUpWithEmail({required String email, required String password});
+  Future<UserCredential> signInWithEmail({
+    required String email,
+    required String password,
+  });
+  Future<UserCredential> signUpWithEmail({
+    required String email,
+    required String password,
+  });
   Future<void> sendPasswordResetEmail({required String email});
 
   Future<UserCredential> signInWithGoogle();
@@ -26,7 +32,3 @@ abstract class AuthRepository {
   Future<void> deleteAccount();
   Future<void> reauthenticate();
 }
-
-
-
-

@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 /// Controls the app Locale and syncs it with Firestore under users/{uid}.settings.language
 class LocaleCubit extends ChangeNotifier {
   LocaleCubit({FirebaseAuth? auth, FirebaseFirestore? firestore})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+    : _auth = auth ?? FirebaseAuth.instance,
+      _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -26,7 +26,9 @@ class LocaleCubit extends ChangeNotifier {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((snap) {
+    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((
+      snap,
+    ) {
       final data = snap.data() ?? {};
       final settings = (data['settings'] as Map?) ?? {};
       final languageCode = (settings['language'] as String?) ?? 'he';
@@ -54,21 +56,7 @@ class LocaleCubit extends ChangeNotifier {
     final user = _auth.currentUser;
     if (user == null) return;
     await _firestore.collection('users').doc(user.uid).set({
-      'settings': {'language': normalized}
+      'settings': {'language': normalized},
     }, SetOptions(merge: true));
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

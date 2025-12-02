@@ -59,12 +59,16 @@ class AwardsCubit extends StateNotifier<AwardsState> {
       return;
     }
 
-    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((snap) {
+    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((
+      snap,
+    ) {
       final data = snap.data() ?? {};
       final points = (data['total_points'] as int?) ?? 0;
       final monthlyPoints = (data['monthly_points'] as int?) ?? 0;
       final nextGoal = (data['next_goal_points'] as int?) ?? 100;
-      final badges = (data['earned_badges'] as List?)?.map((e) => e.toString()).toList() ?? <String>[];
+      final badges =
+          (data['earned_badges'] as List?)?.map((e) => e.toString()).toList() ??
+          <String>[];
       final fullName = data['full_name'] as String?;
       final avatarUrl = data['avatar_url'] as String?;
 
@@ -87,10 +91,8 @@ class AwardsCubit extends StateNotifier<AwardsState> {
   }
 }
 
-final awardsCubitProvider = StateNotifierProvider<AwardsCubit, AwardsState>((ref) {
-  return AwardsCubit(
-    FirebaseFirestore.instance,
-    FirebaseAuth.instance,
-  );
+final awardsCubitProvider = StateNotifierProvider<AwardsCubit, AwardsState>((
+  ref,
+) {
+  return AwardsCubit(FirebaseFirestore.instance, FirebaseAuth.instance);
 });
-

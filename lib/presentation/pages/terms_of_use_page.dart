@@ -9,10 +9,7 @@ class TermsOfUsePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'תנאי שימוש',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -25,10 +22,7 @@ class TermsOfUsePage extends StatelessWidget {
           children: [
             Text(
               'עדכון אחרון: 19/08/2025',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -43,10 +37,10 @@ class TermsOfUsePage extends StatelessWidget {
             _buildSection(
               '2. השירותים שלנו',
               'האפליקציה מספקת את השירותים הבאים:\n\n'
-              '• חיבור בזמן אמת בין משתמשים מוגנים ושומרים.\n'
-              '• התראות חירום באמצעות טכנולוגיה לבישה, GPS ו-Bluetooth.\n'
-              '• תמיכה יומיומית, סיוע במשימות ומעורבות קהילתית.\n'
-              '• מערכת נקודות ותגמולים למתנדבים.',
+                  '• חיבור בזמן אמת בין משתמשים מוגנים ושומרים.\n'
+                  '• התראות חירום באמצעות טכנולוגיה לבישה, GPS ו-Bluetooth.\n'
+                  '• תמיכה יומיומית, סיוע במשימות ומעורבות קהילתית.\n'
+                  '• מערכת נקודות ותגמולים למתנדבים.',
             ),
             _buildSection(
               '3. בטיחות ומגבלות',
@@ -79,19 +73,12 @@ class TermsOfUsePage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(
-            content,
-            style: const TextStyle(fontSize: 16, height: 1.6),
-          ),
+          Text(content, style: const TextStyle(fontSize: 16, height: 1.6)),
         ],
       ),
     );
   }
 }
-

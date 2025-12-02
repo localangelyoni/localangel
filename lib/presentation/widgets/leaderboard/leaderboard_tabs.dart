@@ -63,9 +63,7 @@ class _TabButton extends StatelessWidget {
           color: isSelected ? Colors.grey.shade100 : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: isSelected
-              ? Border(
-                  right: BorderSide(color: Colors.grey.shade300, width: 1),
-                )
+              ? Border(right: BorderSide(color: Colors.grey.shade300, width: 1))
               : null,
         ),
         child: Text(
@@ -81,4 +79,3 @@ class _TabButton extends StatelessWidget {
     );
   }
 }
-

@@ -14,7 +14,9 @@ class MyAwardsSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = nextGoalPoints > 0 ? (totalPoints / nextGoalPoints).clamp(0.0, 1.0) : 0.0;
+    final progress = nextGoalPoints > 0
+        ? (totalPoints / nextGoalPoints).clamp(0.0, 1.0)
+        : 0.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -115,4 +117,3 @@ class MyAwardsSummaryCard extends StatelessWidget {
     );
   }
 }
-

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ActiveEventsCard extends StatelessWidget {
-  const ActiveEventsCard({
-    super.key,
-    this.activeEventsCount = 0,
-  });
+  const ActiveEventsCard({super.key, this.activeEventsCount = 0});
 
   final int activeEventsCount;
 
@@ -14,9 +11,7 @@ class ActiveEventsCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -24,18 +19,11 @@ class ActiveEventsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.access_time,
-                  size: 20,
-                  color: Colors.black87,
-                ),
+                const Icon(Icons.access_time, size: 20, color: Colors.black87),
                 const SizedBox(width: 8),
                 const Text(
                   'אירועים פעילים',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -52,20 +40,14 @@ class ActiveEventsCard extends StatelessWidget {
               const Center(
                 child: Text(
                   'אין אירועים פעילים',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 8),
               Center(
                 child: Text(
                   'אשר/י בקשות קהילתיות כדי לראות אירועים כאן',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -73,10 +55,7 @@ class ActiveEventsCard extends StatelessWidget {
               // TODO: Show active events list when implemented
               Text(
                 '$activeEventsCount אירועים פעילים',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ],
           ],
@@ -85,4 +64,3 @@ class ActiveEventsCard extends StatelessWidget {
     );
   }
 }
-

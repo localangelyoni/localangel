@@ -61,13 +61,18 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
 
   Future<void> _loadSettings() async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('settings').doc('app_settings').get();
+      final doc = await FirebaseFirestore.instance
+          .collection('settings')
+          .doc('app_settings')
+          .get();
       final data = doc.data() ?? {};
       final legal = (data['legal'] as Map?) ?? {};
       setState(() {
         // Use default content if not found in Firestore
-        _termsHtml = (legal['termsHtml'] as String?) ?? _getDefaultTermsContent();
-        _privacyHtml = (legal['privacyHtml'] as String?) ?? _getDefaultPrivacyContent();
+        _termsHtml =
+            (legal['termsHtml'] as String?) ?? _getDefaultTermsContent();
+        _privacyHtml =
+            (legal['privacyHtml'] as String?) ?? _getDefaultPrivacyContent();
         _version = (legal['version'] as String?) ?? 'v1';
         _loading = false;
       });
@@ -148,12 +153,14 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
           'accepted': true,
           'acceptedAt': FieldValue.serverTimestamp(),
           'version': _version,
-        }
+        },
       }, SetOptions(merge: true));
       if (mounted) Navigator.of(context).pop(true);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('אירעה שגיאה, אנא נסו שוב.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('אירעה שגיאה, אנא נסו שוב.')),
+      );
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -168,13 +175,24 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: _loading
-              ? const SizedBox(height: 240, child: Center(child: CircularProgressIndicator()))
+              ? const SizedBox(
+                  height: 240,
+                  child: Center(child: CircularProgressIndicator()),
+                )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('תנאי שימוש ומדיניות פרטיות', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                    const Text(
+                      'תנאי שימוש ומדיניות פרטיות',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    const Text('אנא עברו על תנאי השימוש ומדיניות הפרטיות. כדי להמשיך, סמנו שקראתם והסכמתם.'),
+                    const Text(
+                      'אנא עברו על תנאי השימוש ומדיניות הפרטיות. כדי להמשיך, סמנו שקראתם והסכמתם.',
+                    ),
                     const SizedBox(height: 12),
                     Expanded(
                       child: Container(
@@ -192,10 +210,20 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Text('תנאי השימוש', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                                      const Text(
+                                        'תנאי השימוש',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                                       const Spacer(),
                                       if (_termsRead)
-                                        Icon(Icons.check_circle, color: Colors.green, size: 20)
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                          size: 20,
+                                        )
                                       else
                                         Text(
                                           'קרא/י עד הסוף',
@@ -212,7 +240,13 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
                                       controller: _termsScrollController,
                                       child: SingleChildScrollView(
                                         controller: _termsScrollController,
-                                        child: Text(_termsHtml, style: const TextStyle(fontSize: 14, height: 1.6)),
+                                        child: Text(
+                                          _termsHtml,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            height: 1.6,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -227,10 +261,20 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Text('מדיניות הפרטיות', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                                      const Text(
+                                        'מדיניות הפרטיות',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                                       const Spacer(),
                                       if (_privacyRead)
-                                        Icon(Icons.check_circle, color: Colors.green, size: 20)
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                          size: 20,
+                                        )
                                       else
                                         Text(
                                           'קרא/י עד הסוף',
@@ -247,7 +291,13 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
                                       controller: _privacyScrollController,
                                       child: SingleChildScrollView(
                                         controller: _privacyScrollController,
-                                        child: Text(_privacyHtml, style: const TextStyle(fontSize: 14, height: 1.6)),
+                                        child: Text(
+                                          _privacyHtml,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            height: 1.6,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -281,13 +331,17 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
                       children: [
                         Checkbox(
                           value: _agree,
-                          onChanged: (_termsRead && _privacyRead) ? (v) => setState(() => _agree = v ?? false) : null,
+                          onChanged: (_termsRead && _privacyRead)
+                              ? (v) => setState(() => _agree = v ?? false)
+                              : null,
                         ),
                         Expanded(
                           child: Text(
                             'קראתי ואני מסכימ/ה לתנאי השימוש ומדיניות הפרטיות',
                             style: TextStyle(
-                              color: (_termsRead && _privacyRead) ? Colors.black87 : Colors.grey.shade400,
+                              color: (_termsRead && _privacyRead)
+                                  ? Colors.black87
+                                  : Colors.grey.shade400,
                             ),
                           ),
                         ),
@@ -300,9 +354,22 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
                         style: FilledButton.styleFrom(
                           minimumSize: const Size(0, 56),
                         ),
-                        onPressed: (_termsRead && _privacyRead && _agree && !_submitting) ? _accept : null,
+                        onPressed:
+                            (_termsRead &&
+                                _privacyRead &&
+                                _agree &&
+                                !_submitting)
+                            ? _accept
+                            : null,
                         child: _submitting
-                            ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
                             : const Text('המשך'),
                       ),
                     ),
@@ -325,5 +392,3 @@ class _LegalConsentModalState extends State<LegalConsentModal> {
     );
   }
 }
-
-

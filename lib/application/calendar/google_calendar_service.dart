@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 /// Service for integrating with Google Calendar
-/// 
+///
 /// This service handles authentication and event creation in Google Calendar.
 /// Note: Full implementation requires proper OAuth2 setup with Google Cloud Console.
 class GoogleCalendarService {
@@ -36,13 +36,13 @@ class GoogleCalendarService {
   }
 
   /// Create a calendar event
-  /// 
+  ///
   /// [title] - Event title
   /// [description] - Event description
   /// [startDateTime] - Event start date and time
   /// [endDateTime] - Event end date and time (optional, defaults to 1 hour after start)
   /// [location] - Event location (optional)
-  /// 
+  ///
   /// Note: This is a simplified implementation. For full Google Calendar API integration,
   /// you need to properly configure OAuth2 credentials in Google Cloud Console.
   Future<bool> createEvent({
@@ -61,26 +61,19 @@ class GoogleCalendarService {
       if (authHeaders.isEmpty) return false;
 
       // Format dates for Google Calendar API
-      final startDate = '${startDateTime.toUtc().toIso8601String().replaceAll(RegExp(r'[-:]'), '').split('.')[0]}Z';
-      final endDate = '${(endDateTime ?? startDateTime.add(const Duration(hours: 1)))
-          .toUtc()
-          .toIso8601String()
-          .replaceAll(RegExp(r'[-:]'), '')
-          .split('.')[0]}Z';
+      final startDate =
+          '${startDateTime.toUtc().toIso8601String().replaceAll(RegExp(r'[-:]'), '').split('.')[0]}Z';
+      final endDate =
+          '${(endDateTime ?? startDateTime.add(const Duration(hours: 1))).toUtc().toIso8601String().replaceAll(RegExp(r'[-:]'), '').split('.')[0]}Z';
 
       // Create event JSON
       final eventJson = {
         'summary': title,
-        if (description != null && description.isNotEmpty) 'description': description,
+        if (description != null && description.isNotEmpty)
+          'description': description,
         if (location != null && location.isNotEmpty) 'location': location,
-        'start': {
-          'dateTime': startDate,
-          'timeZone': 'Asia/Jerusalem',
-        },
-        'end': {
-          'dateTime': endDate,
-          'timeZone': 'Asia/Jerusalem',
-        },
+        'start': {'dateTime': startDate, 'timeZone': 'Asia/Jerusalem'},
+        'end': {'dateTime': endDate, 'timeZone': 'Asia/Jerusalem'},
       };
 
       // Create authenticated HTTP client
@@ -88,10 +81,10 @@ class GoogleCalendarService {
 
       // Insert event using Google Calendar API
       final response = await authenticatedClient.post(
-        Uri.parse('https://www.googleapis.com/calendar/v3/calendars/primary/events'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        Uri.parse(
+          'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        ),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(eventJson),
       );
 
@@ -139,7 +132,8 @@ class GoogleAuthClient extends http.BaseClient {
     if (encoding != null) {
       request.encoding = encoding;
     }
-    return _client.send(request).then((response) => http.Response.fromStream(response));
+    return _client
+        .send(request)
+        .then((response) => http.Response.fromStream(response));
   }
 }
-

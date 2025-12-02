@@ -14,13 +14,13 @@ class UserProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = nextGoalPoints > 0 ? (totalPoints / nextGoalPoints).clamp(0.0, 1.0) : 0.0;
+    final progress = nextGoalPoints > 0
+        ? (totalPoints / nextGoalPoints).clamp(0.0, 1.0)
+        : 0.0;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -36,10 +36,7 @@ class UserProgressCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 const Text(
                   'ההתקדמות שלך',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -59,10 +56,7 @@ class UserProgressCard extends StatelessWidget {
                 ),
                 Text(
                   'סה"כ נקודות',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
@@ -73,17 +67,11 @@ class UserProgressCard extends StatelessWidget {
               children: [
                 Text(
                   'התקדמות ליעד הבא',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
                 Text(
                   '$nextGoalPoints נקודות',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
@@ -94,7 +82,9 @@ class UserProgressCard extends StatelessWidget {
                 value: progress,
                 minHeight: 8,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7C3AED)),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  Color(0xFF7C3AED),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -119,4 +109,3 @@ class UserProgressCard extends StatelessWidget {
     );
   }
 }
-

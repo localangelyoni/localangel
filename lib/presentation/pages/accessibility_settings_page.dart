@@ -89,25 +89,29 @@ class AccessibilitySettingsPage extends ConsumerWidget {
                             _AccessibilityToggle(
                               title: 'מצב ניגודיות גבוהה',
                               value: state.highContrastMode,
-                              onChanged: (value) => cubit.updateHighContrastMode(value),
+                              onChanged: (value) =>
+                                  cubit.updateHighContrastMode(value),
                             ),
                             const SizedBox(height: 16),
                             _AccessibilityToggle(
                               title: 'טקסט גדול',
                               value: state.largeText,
-                              onChanged: (value) => cubit.updateLargeText(value),
+                              onChanged: (value) =>
+                                  cubit.updateLargeText(value),
                             ),
                             const SizedBox(height: 16),
                             _AccessibilityToggle(
                               title: 'מצב פשוט',
                               value: state.simpleMode,
-                              onChanged: (value) => cubit.updateSimpleMode(value),
+                              onChanged: (value) =>
+                                  cubit.updateSimpleMode(value),
                             ),
                             const SizedBox(height: 16),
                             _AccessibilityToggle(
                               title: 'הפעל Voice Over',
                               value: state.voiceOverEnabled,
-                              onChanged: (value) => cubit.updateVoiceOverEnabled(value),
+                              onChanged: (value) =>
+                                  cubit.updateVoiceOverEnabled(value),
                             ),
                           ],
                         ),
@@ -190,4 +194,3 @@ class _AccessibilityToggle extends StatelessWidget {
     );
   }
 }
-

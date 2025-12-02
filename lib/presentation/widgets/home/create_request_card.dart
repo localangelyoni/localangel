@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CreateRequestCard extends StatelessWidget {
-  const CreateRequestCard({
-    super.key,
-    this.onCreateRequest,
-  });
+  const CreateRequestCard({super.key, this.onCreateRequest});
 
   final VoidCallback? onCreateRequest;
 
@@ -12,9 +9,7 @@ class CreateRequestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: FilledButton.icon(
@@ -33,4 +28,3 @@ class CreateRequestCard extends StatelessWidget {
     );
   }
 }
-

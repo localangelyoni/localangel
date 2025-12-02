@@ -116,8 +116,3 @@ class _AuthLandingScreenState extends ConsumerState<AuthLandingScreen> {
     );
   }
 }
-
-
-
-
-

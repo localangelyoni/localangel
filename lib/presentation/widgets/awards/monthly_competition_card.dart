@@ -23,10 +23,7 @@ class MonthlyCompetitionCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [
-            Colors.orange.shade600,
-            Colors.orange.shade400,
-          ],
+          colors: [Colors.orange.shade600, Colors.orange.shade400],
         ),
       ),
       child: Padding(
@@ -104,4 +101,3 @@ class MonthlyCompetitionCard extends StatelessWidget {
     );
   }
 }
-

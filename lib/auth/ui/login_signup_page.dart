@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:localangel/auth/providers.dart';
 import 'package:localangel/auth/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 class LoginSignupPage extends ConsumerStatefulWidget {
   const LoginSignupPage({super.key});
@@ -23,15 +24,10 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
   bool _obscureConfirmPassword = true;
   bool _rememberMe = false;
   bool _isLoading = false;
-  bool _biometricSupported = false;
-  bool _biometricEnabled = false;
-  String? _savedEmail;
-  String? _savedPassword;
 
   @override
   void initState() {
     super.initState();
-    _checkBiometricSupport();
     _loadSavedCredentials();
   }
 
@@ -44,18 +40,6 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
     super.dispose();
   }
 
-  Future<void> _checkBiometricSupport() async {
-    final biometricService = ref.read(biometricLockProvider);
-    final supported = await biometricService.isBiometricSupported();
-    final enabled = await biometricService.isBiometricEnabled();
-    if (mounted) {
-      setState(() {
-        _biometricSupported = supported;
-        _biometricEnabled = enabled;
-      });
-    }
-  }
-
   Future<void> _loadSavedCredentials() async {
     final storage = ref.read(secureStorageProvider);
     final savedEmail = await storage.read(key: 'saved_email');
@@ -64,30 +48,9 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
 
     if (mounted && rememberMe == 'true' && savedEmail != null && savedPassword != null) {
       setState(() {
-        _savedEmail = savedEmail;
-        _savedPassword = savedPassword;
         _rememberMe = true;
         _emailController.text = savedEmail;
       });
-
-      if (_biometricEnabled) {
-        _tryBiometricLogin();
-      }
-    }
-  }
-
-  Future<void> _tryBiometricLogin() async {
-    if (_savedEmail == null || _savedPassword == null) return;
-
-    final biometricService = ref.read(biometricLockProvider);
-    final authenticated = await biometricService.authenticate(
-      reason: 'השתמש בזיהוי פנים כדי להתחבר',
-    );
-
-    if (authenticated && mounted) {
-      _emailController.text = _savedEmail!;
-      _passwordController.text = _savedPassword!;
-      await _handleEmailLogin();
     }
   }
 
@@ -120,7 +83,17 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
       }
 
       if (mounted) {
-        Navigator.of(context).pop();
+        // Invalidate the auth stream provider to force it to refresh with new user
+        ref.invalidate(authUserStreamProvider);
+
+        // Wait a moment for the provider to refresh
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Pop back to root - Firebase stream provider will have refreshed
+        // and _AuthGate will rebuild to show HomePage
+        if (mounted && context.mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
@@ -144,15 +117,11 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
           default:
             message = 'שגיאה בהתחברות: ${e.message ?? 'שגיאה לא ידועה'}';
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('שגיאה: $e')));
       }
     } finally {
       if (mounted) {
@@ -171,19 +140,22 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
         case SocialProvider.google:
           await authRepo.signInWithGoogle();
           break;
-        case SocialProvider.apple:
-          await authRepo.signInWithApple();
-          break;
-        case SocialProvider.microsoft:
-          await authRepo.signInWithMicrosoft();
-          break;
-        case SocialProvider.facebook:
-          await authRepo.signInWithFacebook();
-          break;
+        default:
+          return; // Only Google is supported now
       }
 
       if (mounted) {
-        Navigator.of(context).pop();
+        // Invalidate the auth stream provider to force it to refresh with new user
+        ref.invalidate(authUserStreamProvider);
+
+        // Wait a moment for the provider to refresh
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Pop back to root - Firebase stream provider will have refreshed
+        // and _AuthGate will rebuild to show HomePage
+        if (mounted && context.mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
@@ -193,15 +165,11 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
         } else if (e.message != null) {
           message = e.message!;
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('שגיאה: $e')));
       }
     } finally {
       if (mounted) {
@@ -213,9 +181,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
   Future<void> _handlePasswordReset() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('נא להזין כתובת אימייל')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('נא להזין כתובת אימייל')));
       return;
     }
 
@@ -223,15 +189,11 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
       final authRepo = ref.read(firebaseAuthRepositoryProvider);
       await authRepo.sendPasswordResetEmail(email: email);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('נשלח אימייל לאיפוס סיסמה')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('נשלח אימייל לאיפוס סיסמה')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('שגיאה: $e')));
       }
     }
   }
@@ -256,9 +218,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Form(
@@ -268,17 +228,11 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                         children: [
                           Row(
                             children: [
-                              IconButton(
-                                icon: const Icon(Icons.arrow_forward),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
+                              IconButton(icon: const Icon(Icons.arrow_forward), onPressed: () => Navigator.of(context).pop()),
                               const Spacer(),
                               Text(
                                 _isLoginMode ? 'התחברות' : 'הרשמה',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -314,9 +268,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                               border: const UnderlineInputBorder(),
                               prefixIcon: const Icon(Icons.lock_outlined),
                               suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                ),
+                                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
                                 onPressed: () {
                                   setState(() => _obscurePassword = !_obscurePassword);
                                 },
@@ -344,9 +296,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                                 border: const UnderlineInputBorder(),
                                 prefixIcon: const Icon(Icons.lock_outlined),
                                 suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                  ),
+                                  icon: Icon(_obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
                                   onPressed: () {
                                     setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
                                   },
@@ -374,11 +324,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                               ),
                               const Text('זכור אותי'),
                               const Spacer(),
-                              if (_isLoginMode)
-                                TextButton(
-                                  onPressed: _handlePasswordReset,
-                                  child: const Text('שכחתי סיסמה'),
-                                ),
+                              if (_isLoginMode) TextButton(onPressed: _handlePasswordReset, child: const Text('שכחתי סיסמה')),
                             ],
                           ),
                           const SizedBox(height: 24),
@@ -387,9 +333,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                             style: FilledButton.styleFrom(
                               minimumSize: const Size.fromHeight(56),
                               backgroundColor: const Color(0xFF1F1F23),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
                             child: _isLoading
                                 ? const SizedBox(
@@ -417,21 +361,6 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                             iconColor: const Color(0xFF4285F4),
                             onPressed: _isLoading ? null : () => _handleSocialLogin(SocialProvider.google),
                           ),
-                          const SizedBox(height: 12),
-                          _SocialButton(
-                            label: 'המשך עם Apple',
-                            icon: Icons.apple,
-                            iconColor: Colors.black,
-                            onPressed: _isLoading ? null : () => _handleSocialLogin(SocialProvider.apple),
-                          ),
-                          if (_biometricSupported && _isLoginMode && _savedEmail != null) ...[
-                            const SizedBox(height: 12),
-                            _SocialButton(
-                              label: 'זיהוי פנים',
-                              icon: Icons.face,
-                              onPressed: _isLoading ? null : _tryBiometricLogin,
-                            ),
-                          ],
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -464,12 +393,7 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({
-    required this.label,
-    required this.icon,
-    this.iconColor,
-    this.onPressed,
-  });
+  const _SocialButton({required this.label, required this.icon, this.iconColor, this.onPressed});
 
   final String label;
   final IconData icon;
@@ -484,11 +408,8 @@ class _SocialButton extends StatelessWidget {
       label: Text(label),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 }
-

@@ -40,7 +40,8 @@ class LeaderboardState {
     return LeaderboardState(
       totalPoints: totalPoints ?? this.totalPoints,
       monthlyPoints: monthlyPoints ?? this.monthlyPoints,
-      currentLeaderboardType: currentLeaderboardType ?? this.currentLeaderboardType,
+      currentLeaderboardType:
+          currentLeaderboardType ?? this.currentLeaderboardType,
       leaderboard: leaderboard ?? this.leaderboard,
       currentUserRank: currentUserRank ?? this.currentUserRank,
       fullName: fullName ?? this.fullName,
@@ -67,7 +68,8 @@ class LeaderboardEntry {
 }
 
 class LeaderboardCubit extends StateNotifier<LeaderboardState> {
-  LeaderboardCubit(this._firestore, this._auth) : super(const LeaderboardState()) {
+  LeaderboardCubit(this._firestore, this._auth)
+    : super(const LeaderboardState()) {
     _init();
   }
 
@@ -82,7 +84,9 @@ class LeaderboardCubit extends StateNotifier<LeaderboardState> {
       return;
     }
 
-    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((snap) {
+    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((
+      snap,
+    ) {
       final data = snap.data() ?? {};
       final points = (data['total_points'] as int?) ?? 0;
       final monthlyPoints = (data['monthly_points'] as int?) ?? 0;
@@ -139,14 +143,16 @@ class LeaderboardCubit extends StateNotifier<LeaderboardState> {
             ? (data['monthly_points'] as int?) ?? 0
             : (data['total_points'] as int?) ?? 0;
 
-          if (points > 0) {
-          entries.add(LeaderboardEntry(
-            userId: doc.id,
-            fullName: (data['full_name'] as String?) ?? 'משתמש/ת',
-            points: points,
-            avatarUrl: data['avatar_url'] as String?,
-            rank: rank,
-          ));
+        if (points > 0) {
+          entries.add(
+            LeaderboardEntry(
+              userId: doc.id,
+              fullName: (data['full_name'] as String?) ?? 'משתמש/ת',
+              points: points,
+              avatarUrl: data['avatar_url'] as String?,
+              rank: rank,
+            ),
+          );
 
           if (doc.id == user.uid) {
             userRank = rank;
@@ -155,10 +161,7 @@ class LeaderboardCubit extends StateNotifier<LeaderboardState> {
         }
       }
 
-      state = state.copyWith(
-        leaderboard: entries,
-        currentUserRank: userRank,
-      );
+      state = state.copyWith(leaderboard: entries, currentUserRank: userRank);
     } catch (e) {
       debugPrint('Error loading leaderboard: $e');
     }
@@ -171,10 +174,10 @@ class LeaderboardCubit extends StateNotifier<LeaderboardState> {
   }
 }
 
-final leaderboardCubitProvider = StateNotifierProvider<LeaderboardCubit, LeaderboardState>((ref) {
-  return LeaderboardCubit(
-    FirebaseFirestore.instance,
-    FirebaseAuth.instance,
-  );
-});
-
+final leaderboardCubitProvider =
+    StateNotifierProvider<LeaderboardCubit, LeaderboardState>((ref) {
+      return LeaderboardCubit(
+        FirebaseFirestore.instance,
+        FirebaseAuth.instance,
+      );
+    });

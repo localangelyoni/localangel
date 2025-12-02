@@ -25,7 +25,10 @@ class BiometricLockService {
   }
 
   Future<void> setBiometricEnabled(bool enabled) async {
-    await _storage.write(key: 'biometric_enabled', value: enabled ? 'true' : 'false');
+    await _storage.write(
+      key: 'biometric_enabled',
+      value: enabled ? 'true' : 'false',
+    );
   }
 
   Future<bool> authenticate({String? reason}) async {
@@ -59,6 +62,3 @@ class BiometricLockService {
     }
   }
 }
-
-
-

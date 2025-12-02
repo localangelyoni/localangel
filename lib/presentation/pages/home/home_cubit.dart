@@ -73,7 +73,9 @@ class HomeCubit extends StateNotifier<HomeState> {
       return;
     }
 
-    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((snap) {
+    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((
+      snap,
+    ) {
       final data = snap.data() ?? {};
       final isManager = (data['is_angel_manager'] as bool?) ?? false;
       final managerStatus = data['manager_status'] as String?;
@@ -193,10 +195,7 @@ class HomeCubit extends StateNotifier<HomeState> {
       final points = (data['total_points'] as int?) ?? 0;
       final nextGoal = (data['next_goal_points'] as int?) ?? 100;
 
-      state = state.copyWith(
-        totalPoints: points,
-        nextGoalPoints: nextGoal,
-      );
+      state = state.copyWith(totalPoints: points, nextGoalPoints: nextGoal);
     } catch (e) {
       debugPrint('Error loading user points: $e');
     }
@@ -210,9 +209,5 @@ class HomeCubit extends StateNotifier<HomeState> {
 }
 
 final homeCubitProvider = StateNotifierProvider<HomeCubit, HomeState>((ref) {
-  return HomeCubit(
-    FirebaseFirestore.instance,
-    FirebaseAuth.instance,
-  );
+  return HomeCubit(FirebaseFirestore.instance, FirebaseAuth.instance);
 });
-

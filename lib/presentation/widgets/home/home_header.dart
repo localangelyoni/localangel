@@ -25,7 +25,9 @@ class HomeHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 20,
               backgroundColor: Colors.grey.shade300,
-              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+              backgroundImage: avatarUrl != null
+                  ? NetworkImage(avatarUrl!)
+                  : null,
               child: avatarUrl == null
                   ? const Icon(Icons.person, color: Colors.grey)
                   : null,
@@ -44,9 +46,9 @@ class HomeHeader extends StatelessWidget {
               Text(
                 'Local Angel',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF7C3AED),
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF7C3AED),
+                ),
               ),
             ],
           ),
@@ -61,4 +63,3 @@ class HomeHeader extends StatelessWidget {
     );
   }
 }
-

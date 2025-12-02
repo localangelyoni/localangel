@@ -37,11 +37,7 @@ class PrizeCard extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              Icon(
-                Icons.emoji_events,
-                size: 64,
-                color: medalColor,
-              ),
+              Icon(Icons.emoji_events, size: 64, color: medalColor),
               Text(
                 '$rank',
                 style: const TextStyle(
@@ -59,10 +55,7 @@ class PrizeCard extends StatelessWidget {
             child: Text(
               prizeTitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -97,4 +90,3 @@ class PrizeCard extends StatelessWidget {
     );
   }
 }
-

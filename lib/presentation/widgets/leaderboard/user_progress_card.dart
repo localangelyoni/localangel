@@ -40,20 +40,13 @@ class UserProgressCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'החודש',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
           ),
           // Divider
-          Container(
-            width: 1,
-            height: 40,
-            color: Colors.grey.shade300,
-          ),
+          Container(width: 1, height: 40, color: Colors.grey.shade300),
           // Total points
           Expanded(
             child: Column(
@@ -69,20 +62,13 @@ class UserProgressCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'סה"כ נקודות',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
           ),
           // Divider
-          Container(
-            width: 1,
-            height: 40,
-            color: Colors.grey.shade300,
-          ),
+          Container(width: 1, height: 40, color: Colors.grey.shade300),
           // User info
           Expanded(
             child: Row(
@@ -115,7 +101,9 @@ class UserProgressCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: const Color(0xFF7C3AED),
-                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+                  backgroundImage: avatarUrl != null
+                      ? NetworkImage(avatarUrl!)
+                      : null,
                   child: avatarUrl == null
                       ? Text(
                           fullName.isNotEmpty ? fullName[0].toUpperCase() : 'U',
@@ -134,4 +122,3 @@ class UserProgressCard extends StatelessWidget {
     );
   }
 }
-

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localangel/presentation/widgets/legal_consent_modal.dart';
 import 'package:localangel/l10n/app_localizations.dart';
+import 'package:localangel/auth/ui/login_signup_page.dart';
 
 enum OnboardingStep {
   welcome,
@@ -55,15 +56,22 @@ class _WelcomePageState extends State<WelcomePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     try {
-      final userSnap = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
       final userData = userSnap.data() ?? {};
       final legal = (userData['legal'] as Map?) ?? {};
       final accepted = legal['accepted'] == true;
       String currentVersion = 'v1';
       try {
-        final settings = await FirebaseFirestore.instance.collection('settings').doc('app_settings').get();
+        final settings = await FirebaseFirestore.instance
+            .collection('settings')
+            .doc('app_settings')
+            .get();
         final sData = settings.data() ?? {};
-        currentVersion = ((sData['legal'] as Map?)?['version'] as String?) ?? 'v1';
+        currentVersion =
+            ((sData['legal'] as Map?)?['version'] as String?) ?? 'v1';
       } catch (_) {}
       final versionMatches = (legal['version'] as String?) == currentVersion;
       if (!accepted || !versionMatches) {
@@ -158,12 +166,20 @@ class _WelcomePageState extends State<WelcomePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final file = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
     if (file == null) return;
     setState(() => _isSubmitting = true);
     try {
-      final ref = FirebaseStorage.instance.ref().child('avatars/${user.uid}.jpg');
-      await ref.putData(await file.readAsBytes(), SettableMetadata(contentType: 'image/jpeg'));
+      final ref = FirebaseStorage.instance.ref().child(
+        'avatars/${user.uid}.jpg',
+      );
+      await ref.putData(
+        await file.readAsBytes(),
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
       final url = await ref.getDownloadURL();
       setState(() {
         _photoSelected = true;
@@ -171,7 +187,9 @@ class _WelcomePageState extends State<WelcomePage> {
       });
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('שגיאה בהעלאת התמונה')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('שגיאה בהעלאת התמונה')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -187,14 +205,13 @@ class _WelcomePageState extends State<WelcomePage> {
         'email': user.email,
         'avatar_url': _uploadedAvatarUrl,
         'needs_support': _selectedRole == 'angel',
-        'is_guardian': _selectedRole == 'guardian' || _selectedRole == 'manager',
+        'is_guardian':
+            _selectedRole == 'guardian' || _selectedRole == 'manager',
         'is_angel_manager': _selectedRole == 'manager',
         'requested_role': _selectedRole == 'manager' ? 'manager' : null,
         'manager_status': _selectedRole == 'manager' ? 'pending' : null,
         'onboarding_completed': true,
-        'guardian_preferences': {
-          'is_available': true,
-        },
+        'guardian_preferences': {'is_available': true},
         'legal': {
           'accepted': _termsAccepted,
           'acceptedAt': FieldValue.serverTimestamp(),
@@ -202,7 +219,10 @@ class _WelcomePageState extends State<WelcomePage> {
         },
         'updatedAt': FieldValue.serverTimestamp(),
       };
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(data, SetOptions(merge: true));
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set(data, SetOptions(merge: true));
       // If manager role was requested, send the user to verification waiting page
       if (_selectedRole == 'manager') {
         if (!mounted) return;
@@ -215,7 +235,9 @@ class _WelcomePageState extends State<WelcomePage> {
       });
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('שגיאה בשמירת הפרופיל')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('שגיאה בשמירת הפרופיל')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -239,64 +261,71 @@ class _WelcomePageState extends State<WelcomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: _ProgressBar(current: _step.index, total: OnboardingStep.values.length),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: _ProgressBar(
+                  current: _step.index,
+                  total: OnboardingStep.values.length,
+                ),
               ),
               Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 520),
-                    child: Card(
-                      elevation: 2,
-                      clipBehavior: Clip.antiAlias,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _InCardNav(
-                              canBack: _step != OnboardingStep.welcome && _step != OnboardingStep.completed,
-                              onBack: () {
-                                setState(() {
-                                  switch (_step) {
-                                    case OnboardingStep.welcome:
-                                      break;
-                                    case OnboardingStep.slides:
-                                      if (_currentSlide == 0) {
-                                        _step = OnboardingStep.welcome;
-                                      } else {
-                                        _pageController.previousPage(
-                                          duration: const Duration(milliseconds: 200),
-                                          curve: Curves.easeOut,
-                                        );
-                                      }
-                                      break;
-                                    case OnboardingStep.login:
-                                      _step = OnboardingStep.slides;
-                                      break;
-                                    case OnboardingStep.role:
-                                      _step = OnboardingStep.login;
-                                      break;
-                                    case OnboardingStep.terms:
-                                      _step = OnboardingStep.role;
-                                      break;
-                                    case OnboardingStep.location:
-                                      _step = OnboardingStep.terms;
-                                      break;
-                                    case OnboardingStep.profilePicture:
-                                      _step = OnboardingStep.location;
-                                      break;
-                                    case OnboardingStep.completed:
-                                      break;
-                                  }
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            _buildStepContent(),
-                          ],
-                        ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Card(
+                    elevation: 2,
+                    clipBehavior: Clip.antiAlias,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _InCardNav(
+                            canBack:
+                                _step != OnboardingStep.welcome &&
+                                _step != OnboardingStep.completed,
+                            onBack: () {
+                              setState(() {
+                                switch (_step) {
+                                  case OnboardingStep.welcome:
+                                    break;
+                                  case OnboardingStep.slides:
+                                    if (_currentSlide == 0) {
+                                      _step = OnboardingStep.welcome;
+                                    } else {
+                                      _pageController.previousPage(
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
+                                        curve: Curves.easeOut,
+                                      );
+                                    }
+                                    break;
+                                  case OnboardingStep.login:
+                                    _step = OnboardingStep.slides;
+                                    break;
+                                  case OnboardingStep.role:
+                                    _step = OnboardingStep.login;
+                                    break;
+                                  case OnboardingStep.terms:
+                                    _step = OnboardingStep.role;
+                                    break;
+                                  case OnboardingStep.location:
+                                    _step = OnboardingStep.terms;
+                                    break;
+                                  case OnboardingStep.profilePicture:
+                                    _step = OnboardingStep.location;
+                                    break;
+                                  case OnboardingStep.completed:
+                                    break;
+                                }
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          _buildStepContent(),
+                        ],
                       ),
                     ),
                   ),
@@ -344,7 +373,9 @@ class _WelcomePageState extends State<WelcomePage> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('תפקיד מנהל/ת'),
-                  content: const Text('ב‑MVP, שליחת בקשה תיפתח בהמשך. כרגע מדובר במידע בלבד.'),
+                  content: const Text(
+                    'ב‑MVP, שליחת בקשה תיפתח בהמשך. כרגע מדובר במידע בלבד.',
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
@@ -442,9 +473,7 @@ class _WelcomeStep extends StatelessWidget {
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        Text(
-          AppLocalizations.of(context)!.welcome_subtitle,
-        ),
+        Text(AppLocalizations.of(context)!.welcome_subtitle),
         const SizedBox(height: 24),
         FilledButton(
           onPressed: onStart,
@@ -480,17 +509,33 @@ class _SlidesStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final slides = const [
-      ('people', 'הקהילה במרכז', 'מלאך שומר מחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה, ומספקת תמיכה יומיומית.'),
-      ('shield', 'אמון ובטיחות', 'כל פעולה מתועדת. כל מסייע מאומת. האמון שלכם הוא מעל הכל.'),
-      ('award', 'צברו נקודות על עזרה', 'שומרים צוברים נקודות, תגים והכרה על פעולתם.'),
-      ('case', 'התפקיד שלך משנה', 'בחרו להיות שומר/ת או מנהל/ת. לכל תפקיד אחריות שונה.'),
+      (
+        'people',
+        'הקהילה במרכז',
+        'מלאך שומר מחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה, ומספקת תמיכה יומיומית.',
+      ),
+      (
+        'shield',
+        'אמון ובטיחות',
+        'כל פעולה מתועדת. כל מסייע מאומת. האמון שלכם הוא מעל הכל.',
+      ),
+      (
+        'award',
+        'צברו נקודות על עזרה',
+        'שומרים צוברים נקודות, תגים והכרה על פעולתם.',
+      ),
+      (
+        'case',
+        'התפקיד שלך משנה',
+        'בחרו להיות שומר/ת או מנהל/ת. לכל תפקיד אחריות שונה.',
+      ),
     ];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: 220,
+          height: 300,
           child: PageView.builder(
             controller: controller,
             onPageChanged: onPageChanged,
@@ -502,11 +547,21 @@ class _SlidesStep extends StatelessWidget {
                 children: [
                   _IconTile(kind: s.$1),
                   const SizedBox(height: 16),
-                  Text(s.$2, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                  Text(
+                    s.$2,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(s.$3, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade700)),
+                    child: Text(
+                      s.$3,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade700),
+                    ),
                   ),
                 ],
               );
@@ -528,7 +583,9 @@ class _SlidesStep extends StatelessWidget {
                   height: selected ? 12 : 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: selected ? const Color(0xFF7C3AED) : Colors.grey.shade400,
+                    color: selected
+                        ? const Color(0xFF7C3AED)
+                        : Colors.grey.shade400,
                   ),
                 ),
               ),
@@ -579,132 +636,19 @@ class _IconTile extends StatelessWidget {
   }
 }
 
-class _LoginStep extends StatefulWidget {
+class _LoginStep extends StatelessWidget {
   const _LoginStep({required this.onContinue});
 
   final VoidCallback onContinue;
 
-  @override
-  State<_LoginStep> createState() => _LoginStepState();
-}
+  Future<void> _navigateToLogin(BuildContext context) async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const LoginSignupPage()));
 
-class _LoginStepState extends State<_LoginStep> {
-  final emailController = TextEditingController();
-  final passController = TextEditingController();
-  bool isLoading = false;
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passController.dispose();
-    super.dispose();
-  }
-
-  String _getErrorMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return 'משתמש לא נמצא';
-      case 'wrong-password':
-        return 'סיסמה שגויה';
-      case 'invalid-email':
-        return 'כתובת אימייל לא תקינה';
-      case 'user-disabled':
-        return 'המשתמש הושבת';
-      case 'too-many-requests':
-        return 'יותר מדי ניסיונות, נסה שוב מאוחר יותר';
-      case 'weak-password':
-        return 'הסיסמה חלשה מדי';
-      case 'email-already-in-use':
-        return 'כתובת האימייל כבר בשימוש';
-      case 'network-request-failed':
-        return 'שגיאת רשת, בדוק את החיבור לאינטרנט';
-      default:
-        return 'שגיאה בהתחברות: ${e.message ?? 'שגיאה לא ידועה'}';
-    }
-  }
-
-  Future<void> _handleLogin() async {
-    final email = emailController.text.trim();
-    final password = passController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('נא למלא את כל השדות')),
-        );
-      }
-      return;
-    }
-
-    if (!email.contains('@')) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('כתובת אימייל לא תקינה')),
-        );
-      }
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      // Try to sign in first
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('התחברת בהצלחה!')),
-        );
-        widget.onContinue();
-      }
-    } on FirebaseAuthException catch (e) {
-      // If user not found, try to create account
-      if (e.code == 'user-not-found') {
-        try {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
-          
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('נוצר חשבון חדש בהצלחה!')),
-            );
-            widget.onContinue();
-          }
-        } on FirebaseAuthException catch (signUpError) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(_getErrorMessage(signUpError))),
-            );
-          }
-        }
-      } else {
-        // Other sign-in errors
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_getErrorMessage(e))),
-          );
-        }
-      }
-    } catch (e) {
-      // Generic error
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה כללית: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    // After returning from login page, check if user is authenticated
+    if (context.mounted && FirebaseAuth.instance.currentUser != null) {
+      onContinue();
     }
   }
 
@@ -714,33 +658,15 @@ class _LoginStepState extends State<_LoginStep> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('התחברות', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        TextField(
-          controller: emailController,
-          decoration: const InputDecoration(labelText: 'אימייל'),
-          keyboardType: TextInputType.emailAddress,
-          textDirection: TextDirection.ltr,
-          enabled: !isLoading,
+        const Text(
+          'התחברות',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: passController,
-          decoration: const InputDecoration(labelText: 'סיסמה'),
-          obscureText: true,
-          textDirection: TextDirection.ltr,
-          enabled: !isLoading,
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         FilledButton(
-          onPressed: isLoading ? null : _handleLogin,
-          child: isLoading 
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
-            : const Text('התחברות עם אימייל'),
+          onPressed: () => _navigateToLogin(context),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+          child: const Text('התחברות / הרשמה'),
         ),
       ],
     );
@@ -768,7 +694,9 @@ class _RoleStep extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: selected ? const Color(0xFF7C3AED) : Colors.grey.shade300),
+            border: Border.all(
+              color: selected ? const Color(0xFF7C3AED) : Colors.grey.shade300,
+            ),
             color: selected ? const Color(0xFFF3E8FF) : Colors.white,
           ),
           child: Row(
@@ -783,8 +711,19 @@ class _RoleStep extends StatelessWidget {
                 child: Icon(icon, color: const Color(0xFF7C3AED)),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
-              Icon(selected ? Icons.check_circle : Icons.circle_outlined, color: selected ? const Color(0xFF7C3AED) : Colors.grey),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(
+                selected ? Icons.check_circle : Icons.circle_outlined,
+                color: selected ? const Color(0xFF7C3AED) : Colors.grey,
+              ),
             ],
           ),
         ),
@@ -795,7 +734,10 @@ class _RoleStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('בחירת תפקיד', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text(
+          'בחירת תפקיד',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 12),
         roleTile('guardian', 'אני שומר/ת', Icons.volunteer_activism_outlined),
         const SizedBox(height: 8),
@@ -876,7 +818,10 @@ class _TermsStepState extends State<_TermsStep> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('תנאי השימוש ומדיניות הפרטיות', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+        const Text(
+          'תנאי השימוש ומדיניות הפרטיות',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+        ),
         const SizedBox(height: 8),
         Text(
           'אנא קרא/י את כל התנאים והמדיניות עד הסוף',
@@ -899,10 +844,20 @@ class _TermsStepState extends State<_TermsStep> {
                   children: [
                     Row(
                       children: [
-                        const Text('תנאי השימוש', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        const Text(
+                          'תנאי השימוש',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         const Spacer(),
                         if (_termsRead)
-                          Icon(Icons.check_circle, color: Colors.green, size: 18)
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 18,
+                          )
                         else
                           Text(
                             'קרא/י עד הסוף',
@@ -937,10 +892,20 @@ class _TermsStepState extends State<_TermsStep> {
                   children: [
                     Row(
                       children: [
-                        const Text('מדיניות הפרטיות', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        const Text(
+                          'מדיניות הפרטיות',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         const Spacer(),
                         if (_privacyRead)
-                          Icon(Icons.check_circle, color: Colors.green, size: 18)
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 18,
+                          )
                         else
                           Text(
                             'קרא/י עד הסוף',
@@ -1010,10 +975,7 @@ class _TermsStepState extends State<_TermsStep> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               'אנא קרא/י את כל התנאים והמדיניות עד הסוף',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.orange.shade700,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
             ),
           ),
         const SizedBox(height: 8),
@@ -1047,7 +1009,10 @@ class _LocationStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('הפעלת שירותי מיקום', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+        const Text(
+          'הפעלת שירותי מיקום',
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+        ),
         const SizedBox(height: 8),
         Text(
           'כדי לחבר אותך עם עזרה בקרבת מקום, אנחנו צריכים גישה למיקום שלך.',
@@ -1063,26 +1028,37 @@ class _LocationStep extends StatelessWidget {
           child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('למה אנחנו צריכים מיקום?', style: TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                'למה אנחנו צריכים מיקום?',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               SizedBox(height: 8),
-              Text('• חיבור עם שומרים קרובים\n• הערכת זמן הגעה לעזרה\n• התראות חירום מדויקות'),
+              Text(
+                '• חיבור עם שומרים קרובים\n• הערכת זמן הגעה לעזרה\n• התראות חירום מדויקות',
+              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         FilledButton(
           onPressed: enabled || submitting ? null : onEnable,
-          child: submitting ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('הפעל שירותי מיקום'),
+          child: submitting
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text('הפעל שירותי מיקום'),
         ),
         const SizedBox(height: 8),
         if (errorText != null) ...[
           Text(errorText!, style: const TextStyle(color: Colors.red)),
           const SizedBox(height: 8),
         ],
-        OutlinedButton(
-          onPressed: onContinue,
-          child: const Text('המשך'),
-        ),
+        OutlinedButton(onPressed: onContinue, child: const Text('המשך')),
       ],
     );
   }
@@ -1107,9 +1083,15 @@ class _ProfilePictureStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('הוספת תמונת פרופיל', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+        const Text(
+          'הוספת תמונת פרופיל',
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+        ),
         const SizedBox(height: 8),
-        Text('זה עוזר לקהילה שלך לזהות אותך.', style: TextStyle(color: Colors.grey.shade700)),
+        Text(
+          'זה עוזר לקהילה שלך לזהות אותך.',
+          style: TextStyle(color: Colors.grey.shade700),
+        ),
         const SizedBox(height: 16),
         Container(
           height: 220,
@@ -1122,7 +1104,12 @@ class _ProfilePictureStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(selected ? Icons.check_circle_outline : Icons.camera_alt_outlined, size: 48),
+              Icon(
+                selected
+                    ? Icons.check_circle_outline
+                    : Icons.camera_alt_outlined,
+                size: 48,
+              ),
               const SizedBox(height: 8),
               Text(selected ? 'תמונה נבחרה' : 'הוספת תמונה (אופציונלי)'),
             ],
@@ -1165,14 +1152,16 @@ class _CompletedStep extends StatelessWidget {
         const SizedBox(height: 16),
         const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 72),
         const SizedBox(height: 16),
-        const Text('ברוך הבא לקהילה!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
-        const SizedBox(height: 8),
-        const Text('הגדרת החשבון הושלמה בהצלחה. אתה יכול כעת להתחיל להשתמש באפליקציה.'),
-        const SizedBox(height: 16),
-        FilledButton(
-          onPressed: onGoHome,
-          child: const Text('מעבר לדף הבית'),
+        const Text(
+          'ברוך הבא לקהילה!',
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
         ),
+        const SizedBox(height: 8),
+        const Text(
+          'הגדרת החשבון הושלמה בהצלחה. אתה יכול כעת להתחיל להשתמש באפליקציה.',
+        ),
+        const SizedBox(height: 16),
+        FilledButton(onPressed: onGoHome, child: const Text('מעבר לדף הבית')),
       ],
     );
   }
@@ -1199,5 +1188,3 @@ class _ProgressBar extends StatelessWidget {
 }
 
 // Dashboard is defined in its own file and route
-
-

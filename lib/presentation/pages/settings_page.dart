@@ -5,15 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../application/accessibility/accessibility_cubit.dart';
+import '../../auth/providers.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   final TextEditingController _fullName = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _phone = TextEditingController();
@@ -42,15 +43,26 @@ class _SettingsPageState extends State<SettingsPage> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
       final data = doc.data() ?? {};
       _fullName.text = (data['full_name'] as String?) ?? '';
-      _email.text = (data['email'] as String?) ?? FirebaseAuth.instance.currentUser?.email ?? '';
+      _email.text =
+          (data['email'] as String?) ??
+          FirebaseAuth.instance.currentUser?.email ??
+          '';
       _phone.text = (data['phone_number'] as String?) ?? '';
-      _available = ((data['guardian_preferences'] as Map?)?['is_available'] as bool?) ?? true;
-      _hideCommunityProfile = ((data['guardian_preferences'] as Map?)?['hide_community_profile'] as bool?) ?? false;
+      _available =
+          ((data['guardian_preferences'] as Map?)?['is_available'] as bool?) ??
+          true;
+      _hideCommunityProfile =
+          ((data['guardian_preferences'] as Map?)?['hide_community_profile']
+              as bool?) ??
+          false;
       _avatarUrl = data['avatar_url'] as String?;
-      
+
       // Determine selected role
       if ((data['is_angel_manager'] as bool?) == true) {
         _selectedRole = 'manager';
@@ -67,18 +79,28 @@ class _SettingsPageState extends State<SettingsPage> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final file = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
     if (file == null) return;
     setState(() => _saving = true);
     try {
       final ref = FirebaseStorage.instance.ref().child('avatars/$uid.jpg');
-      await ref.putData(await file.readAsBytes(), SettableMetadata(contentType: 'image/jpeg'));
+      await ref.putData(
+        await file.readAsBytes(),
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
       final url = await ref.getDownloadURL();
-      await FirebaseFirestore.instance.collection('users').doc(uid).set({'avatar_url': url}, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'avatar_url': url,
+      }, SetOptions(merge: true));
       if (mounted) setState(() => _avatarUrl = url);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('העלאת תמונה נכשלה')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('העלאת תמונה נכשלה')));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -103,18 +125,26 @@ class _SettingsPageState extends State<SettingsPage> {
       // Update role if changed
       if (_selectedRole != null) {
         updateData['needs_support'] = _selectedRole == 'angel';
-        updateData['is_guardian'] = _selectedRole == 'guardian' || _selectedRole == 'manager';
+        updateData['is_guardian'] =
+            _selectedRole == 'guardian' || _selectedRole == 'manager';
         updateData['is_angel_manager'] = _selectedRole == 'manager';
       }
 
-      await FirebaseFirestore.instance.collection('users').doc(uid).set(updateData, SetOptions(merge: true));
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(updateData, SetOptions(merge: true));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('נשמר בהצלחה')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('נשמר בהצלחה')));
         Navigator.of(context).pop();
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('שמירה נכשלה')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('שמירה נכשלה')));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -140,8 +170,14 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
 
-    if (confirmed == true) {
-      await FirebaseAuth.instance.signOut();
+    if (confirmed == true && mounted) {
+      // Use the auth repository to sign out
+      // Firebase authStateChanges stream will emit automatically
+      // and _AuthGate will rebuild to show OnboardingFlow
+      final authRepo = ref.read(firebaseAuthRepositoryProvider);
+      await authRepo.signOut();
+
+      // Navigate to root - _AuthGate will automatically show onboarding
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
@@ -155,10 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: const Text(
           'הגדרות',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -199,7 +232,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   // Role Preferences Card
                   _RolePreferencesCard(
                     selectedRole: _selectedRole,
-                    onRoleSelected: (role) => setState(() => _selectedRole = role),
+                    onRoleSelected: (role) =>
+                        setState(() => _selectedRole = role),
                   ),
                   const SizedBox(height: 12),
                   // Guardian Status Card
@@ -211,7 +245,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   // Privacy Settings Card
                   _PrivacySettingsCard(
                     hideCommunityProfile: _hideCommunityProfile,
-                    onChanged: (value) => setState(() => _hideCommunityProfile = value),
+                    onChanged: (value) =>
+                        setState(() => _hideCommunityProfile = value),
                   ),
                   const SizedBox(height: 12),
                   // Accessibility Card
@@ -227,7 +262,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: _saving ? null : () => Navigator.of(context).pop(),
+                            onPressed: _saving
+                                ? null
+                                : () => Navigator.of(context).pop(),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
@@ -252,7 +289,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
                                   )
                                 : const Text('שמור שינויים'),
                           ),
@@ -295,32 +335,27 @@ class _ProfilePictureCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.camera_alt, color: Color(0xFF7C3AED), size: 20),
+                const Icon(
+                  Icons.camera_alt,
+                  color: Color(0xFF7C3AED),
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 const Text(
                   'תמונת פרופיל',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             const Text(
               'עדכן תמונת פרופיל',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
               'הוסף או שנה את תמונת הפרופיל שלך',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 16),
             Row(
@@ -345,9 +380,15 @@ class _ProfilePictureCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.grey.shade300,
-                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+                  backgroundImage: avatarUrl != null
+                      ? NetworkImage(avatarUrl!)
+                      : null,
                   child: avatarUrl == null
-                      ? Icon(Icons.person, size: 40, color: Colors.grey.shade600)
+                      ? Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.grey.shade600,
+                        )
                       : null,
                 ),
               ],
@@ -383,10 +424,7 @@ class _ProfileDetailsCard extends StatelessWidget {
           children: [
             const Text(
               'פרטי פרופיל',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -443,10 +481,7 @@ class _RolePreferencesCard extends StatelessWidget {
           children: [
             const Text(
               'העדפות תפקיד',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _RoleCard(
@@ -533,7 +568,9 @@ class _RoleCard extends StatelessWidget {
                     description,
                     style: TextStyle(
                       fontSize: 14,
-                      color: isSelected ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade600,
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : Colors.grey.shade600,
                     ),
                   ),
                 ],
@@ -574,10 +611,7 @@ class _GuardianStatusCard extends StatelessWidget {
           children: [
             const Text(
               'סטטוס שומר/ת',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -592,7 +626,9 @@ class _GuardianStatusCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: isAvailable ? Colors.green : Colors.grey.shade600,
+                          color: isAvailable
+                              ? Colors.green
+                              : Colors.grey.shade600,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -643,10 +679,7 @@ class _PrivacySettingsCard extends StatelessWidget {
           children: [
             const Text(
               'הגדרות פרטיות',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -715,14 +748,15 @@ class _AccessibilityCardState extends ConsumerState<_AccessibilityCard> {
           children: [
             Row(
               children: [
-                const Icon(Icons.accessibility_new, color: Color(0xFF7C3AED), size: 20),
+                const Icon(
+                  Icons.accessibility_new,
+                  color: Color(0xFF7C3AED),
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 const Text(
                   'נגישות',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -735,7 +769,10 @@ class _AccessibilityCardState extends ConsumerState<_AccessibilityCard> {
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
@@ -778,7 +815,8 @@ class _AccessibilityCardState extends ConsumerState<_AccessibilityCard> {
                         _AccessibilityToggle(
                           title: 'מצב ניגודיות גבוהה',
                           value: state.highContrastMode,
-                          onChanged: (value) => cubit.updateHighContrastMode(value),
+                          onChanged: (value) =>
+                              cubit.updateHighContrastMode(value),
                         ),
                         const SizedBox(height: 16),
                         _AccessibilityToggle(
@@ -796,7 +834,8 @@ class _AccessibilityCardState extends ConsumerState<_AccessibilityCard> {
                         _AccessibilityToggle(
                           title: 'הפעל Voice Over',
                           value: state.voiceOverEnabled,
-                          onChanged: (value) => cubit.updateVoiceOverEnabled(value),
+                          onChanged: (value) =>
+                              cubit.updateVoiceOverEnabled(value),
                         ),
                         const SizedBox(height: 20),
                         // Reset button
@@ -885,10 +924,7 @@ class _InformationLegalCard extends StatelessWidget {
           children: [
             const Text(
               'מידע ומשפטי',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -952,10 +988,7 @@ class _LogoutCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'פעולה זו תנתק אותך מהחשבון שלך במכשיר זה ותחזיר אותך למסך הכניסה.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade700,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
             ),
             const SizedBox(height: 16),
             SizedBox(

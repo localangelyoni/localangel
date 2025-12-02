@@ -22,8 +22,3 @@ class AppLockScreen extends ConsumerWidget {
     );
   }
 }
-
-
-
-
-

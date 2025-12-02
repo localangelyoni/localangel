@@ -59,7 +59,10 @@ class _CreatePingPageState extends State<CreatePingPage> {
 
     // Check if user is manager
     try {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
       final userData = userDoc.data() ?? {};
       final isManager = (userData['is_angel_manager'] as bool?) ?? false;
       final managerStatus = userData['manager_status'] as String?;
@@ -196,10 +199,14 @@ class _CreatePingPageState extends State<CreatePingPage> {
         );
       }
 
-      final pingRef = await FirebaseFirestore.instance.collection('pings').add(pingData);
+      final pingRef = await FirebaseFirestore.instance
+          .collection('pings')
+          .add(pingData);
 
       // Add to Google Calendar if requested and scheduled
-      if (_addToGoogleCalendar && _scheduledDate != null && _scheduledTime != null) {
+      if (_addToGoogleCalendar &&
+          _scheduledDate != null &&
+          _scheduledTime != null) {
         final scheduledDateTime = DateTime(
           _scheduledDate!.year,
           _scheduledDate!.month,
@@ -238,21 +245,21 @@ class _CreatePingPageState extends State<CreatePingPage> {
             'message': 'בקשה נוצרה',
             'timestamp': FieldValue.serverTimestamp(),
             'message_type': 'system',
-          }
+          },
         ],
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('הבקשה נוצרה בהצלחה')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('הבקשה נוצרה בהצלחה')));
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('שמירה נכשלה')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('שמירה נכשלה')));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -287,7 +294,7 @@ class _CreatePingPageState extends State<CreatePingPage> {
               return;
             }
           }
-          
+
           if (_currentStep < 2) {
             setState(() => _currentStep++);
           } else {
@@ -314,30 +321,26 @@ class _CreatePingPageState extends State<CreatePingPage> {
                     ),
                   ),
                 if (details.stepIndex > 0) const SizedBox(width: 8),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: _submitting ? null : details.onStepContinue,
-                        child: _submitting && details.stepIndex == 2
-                            ? const SizedBox(
-                                height: 18,
-                                width: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text(details.stepIndex == 2 ? 'שלח קריאה' : 'המשך'),
-                      ),
-                    ),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _submitting ? null : details.onStepContinue,
+                    child: _submitting && details.stepIndex == 2
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(details.stepIndex == 2 ? 'שלח קריאה' : 'המשך'),
+                  ),
+                ),
               ],
             ),
           );
         },
-        steps: [
-          _buildStep1(),
-          _buildStep2(),
-          _buildStep3(),
-        ],
+        steps: [_buildStep1(), _buildStep2(), _buildStep3()],
       ),
     );
   }
@@ -390,9 +393,14 @@ class _CreatePingPageState extends State<CreatePingPage> {
                           const SizedBox(width: 12),
                           Expanded(child: Text(user['full_name'])),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF7C3AED).withValues(alpha: 0.1),
+                              color: const Color(
+                                0xFF7C3AED,
+                              ).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text(
@@ -451,7 +459,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade300,
+                      color: isSelected
+                          ? const Color(0xFF7C3AED)
+                          : Colors.grey.shade300,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -466,7 +476,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? const Color(0xFF7C3AED) : Colors.black,
+                                color: isSelected
+                                    ? const Color(0xFF7C3AED)
+                                    : Colors.black,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -491,7 +503,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                         ),
                         child: Icon(
                           typeData['icon'] as IconData,
-                          color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade700,
+                          color: isSelected
+                              ? const Color(0xFF7C3AED)
+                              : Colors.grey.shade700,
                         ),
                       ),
                     ],
@@ -510,60 +524,87 @@ class _CreatePingPageState extends State<CreatePingPage> {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: [
-              'medical',
-              'mobility',
-              'communication',
-              'daily_tasks',
-              'social',
-              'safety',
-            ].map((cat) {
-              final catData = {
-                'medical': {'title': 'רפואי', 'icon': Icons.medical_services_outlined},
-                'mobility': {'title': 'ניידות', 'icon': Icons.directions_car_outlined},
-                'communication': {'title': 'תקשורת', 'icon': Icons.people_outline},
-                'daily_tasks': {'title': 'משימות יומיומיות', 'icon': Icons.home_outlined},
-                'social': {'title': 'חברתי', 'icon': Icons.favorite_outline},
-                'safety': {'title': 'בטיחות', 'icon': Icons.shield_outlined},
-              }[cat]!;
+            children:
+                [
+                  'medical',
+                  'mobility',
+                  'communication',
+                  'daily_tasks',
+                  'social',
+                  'safety',
+                ].map((cat) {
+                  final catData = {
+                    'medical': {
+                      'title': 'רפואי',
+                      'icon': Icons.medical_services_outlined,
+                    },
+                    'mobility': {
+                      'title': 'ניידות',
+                      'icon': Icons.directions_car_outlined,
+                    },
+                    'communication': {
+                      'title': 'תקשורת',
+                      'icon': Icons.people_outline,
+                    },
+                    'daily_tasks': {
+                      'title': 'משימות יומיומיות',
+                      'icon': Icons.home_outlined,
+                    },
+                    'social': {
+                      'title': 'חברתי',
+                      'icon': Icons.favorite_outline,
+                    },
+                    'safety': {
+                      'title': 'בטיחות',
+                      'icon': Icons.shield_outlined,
+                    },
+                  }[cat]!;
 
-              final isSelected = _category == cat;
-              return InkWell(
-                onTap: () => setState(() => _category = cat),
-                child: Container(
-                  width: (MediaQuery.of(context).size.width - 64) / 2,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? const Color(0xFF7C3AED).withValues(alpha: 0.1)
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade300,
-                      width: isSelected ? 2 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        catData['icon'] as IconData,
-                        color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade700,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          catData['title'] as String,
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? const Color(0xFF7C3AED) : Colors.black,
-                          ),
+                  final isSelected = _category == cat;
+                  return InkWell(
+                    onTap: () => setState(() => _category = cat),
+                    child: Container(
+                      width: (MediaQuery.of(context).size.width - 64) / 2,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFF7C3AED).withValues(alpha: 0.1)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFF7C3AED)
+                              : Colors.grey.shade300,
+                          width: isSelected ? 2 : 1,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
+                      child: Row(
+                        children: [
+                          Icon(
+                            catData['icon'] as IconData,
+                            color: isSelected
+                                ? const Color(0xFF7C3AED)
+                                : Colors.grey.shade700,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              catData['title'] as String,
+                              style: TextStyle(
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? const Color(0xFF7C3AED)
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
           ),
         ],
       ),
@@ -635,10 +676,15 @@ class _CreatePingPageState extends State<CreatePingPage> {
                       children: [
                         Text(
                           _scheduledDate != null
-                              ? DateFormat('dd/MM/yyyy', 'he').format(_scheduledDate!)
+                              ? DateFormat(
+                                  'dd/MM/yyyy',
+                                  'he',
+                                ).format(_scheduledDate!)
                               : 'בחר/י תאריך',
                           style: TextStyle(
-                            color: _scheduledDate != null ? Colors.black : Colors.grey,
+                            color: _scheduledDate != null
+                                ? Colors.black
+                                : Colors.grey,
                           ),
                         ),
                         const Icon(Icons.calendar_today, size: 20),
@@ -666,7 +712,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                               ? _scheduledTime!.format(context)
                               : 'בחר/י שעה',
                           style: TextStyle(
-                            color: _scheduledTime != null ? Colors.black : Colors.grey,
+                            color: _scheduledTime != null
+                                ? Colors.black
+                                : Colors.grey,
                           ),
                         ),
                         const Icon(Icons.access_time, size: 20),
@@ -719,7 +767,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('לא ניתן להתחבר ל-Google Calendar'),
+                                      content: Text(
+                                        'לא ניתן להתחבר ל-Google Calendar',
+                                      ),
                                     ),
                                   );
                                 }
@@ -742,7 +792,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('לא ניתן להתחבר ל-Google Calendar'),
+                                content: Text(
+                                  'לא ניתן להתחבר ל-Google Calendar',
+                                ),
                               ),
                             );
                           }
@@ -853,15 +905,25 @@ class _CreatePingPageState extends State<CreatePingPage> {
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+                  border: Border.all(
+                    color: Colors.grey.shade300,
+                    style: BorderStyle.solid,
+                  ),
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
+                    Icon(
+                      Icons.people_outline,
+                      size: 48,
+                      color: Colors.grey.shade400,
+                    ),
                     const SizedBox(height: 12),
                     const Text(
                       'לא נמצאו שומרים',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -893,9 +955,9 @@ class _CreatePingPageState extends State<CreatePingPage> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color(0xFF7C3AED).withValues(alpha: 0.1)
-                                : Colors.white,
+                        color: isSelected
+                            ? const Color(0xFF7C3AED).withValues(alpha: 0.1)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
@@ -921,12 +983,17 @@ class _CreatePingPageState extends State<CreatePingPage> {
                               guardian['full_name'],
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                           ),
                           if (isSelected)
-                            const Icon(Icons.check_circle, color: Color(0xFF7C3AED)),
+                            const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF7C3AED),
+                            ),
                         ],
                       ),
                     ),

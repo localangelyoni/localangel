@@ -51,7 +51,10 @@ class WinnersBanner extends StatelessWidget {
                 label: const Text('צפה בכל הזוכים'),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF7C3AED),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
@@ -64,4 +67,3 @@ class WinnersBanner extends StatelessWidget {
     );
   }
 }
-

@@ -18,10 +18,7 @@ class LeaderboardPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(
           'טבלת מובילי השומרים',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -63,12 +60,15 @@ class LeaderboardPage extends ConsumerWidget {
                     LeaderboardTabs(
                       currentType: leaderboardState.currentLeaderboardType,
                       onTypeChanged: (type) {
-                        ref.read(leaderboardCubitProvider.notifier).switchLeaderboardType(type);
+                        ref
+                            .read(leaderboardCubitProvider.notifier)
+                            .switchLeaderboardType(type);
                       },
                     ),
                     const SizedBox(height: 16),
                     // Monthly competition section (only for monthly view)
-                    if (leaderboardState.currentLeaderboardType == LeaderboardType.monthly)
+                    if (leaderboardState.currentLeaderboardType ==
+                        LeaderboardType.monthly)
                       const MonthlyCompetitionSection(),
                     const SizedBox(height: 16),
                     // Leaderboard list
@@ -84,4 +84,3 @@ class LeaderboardPage extends ConsumerWidget {
     );
   }
 }
-

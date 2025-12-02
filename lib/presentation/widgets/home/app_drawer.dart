@@ -3,12 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AppDrawer extends StatefulWidget {
-  const AppDrawer({
-    super.key,
-    this.fullName,
-    this.avatarUrl,
-    this.roleTitle,
-  });
+  const AppDrawer({super.key, this.fullName, this.avatarUrl, this.roleTitle});
 
   final String? fullName;
   final String? avatarUrl;
@@ -35,9 +30,14 @@ class _AppDrawerState extends State<AppDrawer> {
       return;
     }
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
       final data = doc.data() ?? {};
-      final isAvailable = ((data['guardian_preferences'] as Map?)?['is_available'] as bool?) ?? true;
+      final isAvailable =
+          ((data['guardian_preferences'] as Map?)?['is_available'] as bool?) ??
+          true;
       if (mounted) {
         setState(() {
           _isAvailable = isAvailable;
@@ -63,9 +63,9 @@ class _AppDrawerState extends State<AppDrawer> {
       // Revert on error
       if (mounted) {
         setState(() => _isAvailable = !value);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בעדכון הסטטוס')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('שגיאה בעדכון הסטטוס')));
       }
     }
   }
@@ -81,16 +81,16 @@ class _AppDrawerState extends State<AppDrawer> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade200),
-                ),
+                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
               ),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.grey.shade300,
-                    backgroundImage: widget.avatarUrl != null ? NetworkImage(widget.avatarUrl!) : null,
+                    backgroundImage: widget.avatarUrl != null
+                        ? NetworkImage(widget.avatarUrl!)
+                        : null,
                     child: widget.avatarUrl == null
                         ? const Icon(Icons.person, color: Colors.grey, size: 30)
                         : null,
@@ -135,7 +135,9 @@ class _AppDrawerState extends State<AppDrawer> {
                       Navigator.of(context).pop();
                       // If already on home, do nothing
                       if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
                       }
                     },
                   ),
@@ -195,19 +197,14 @@ class _AppDrawerState extends State<AppDrawer> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: const Color(0xFF7C3AED).withValues(alpha: 0.1),
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade200),
-                ),
+                border: Border(top: BorderSide(color: Colors.grey.shade200)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
                     'סטטוס שומר/ת',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   if (_loadingAvailability)
@@ -282,4 +279,3 @@ class _DrawerItem extends StatelessWidget {
     );
   }
 }
-

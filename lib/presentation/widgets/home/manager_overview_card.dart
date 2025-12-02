@@ -22,9 +22,7 @@ class ManagerOverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -32,18 +30,11 @@ class ManagerOverviewCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.settings,
-                  size: 20,
-                  color: Colors.black87,
-                ),
+                const Icon(Icons.settings, size: 20, color: Colors.black87),
                 const SizedBox(width: 8),
                 const Text(
                   'סקירת מנהל/ת',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -160,14 +151,10 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.black87,
-            ),
+            style: const TextStyle(fontSize: 12, color: Colors.black87),
           ),
         ],
       ),
     );
   }
 }
-

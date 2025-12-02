@@ -39,10 +39,7 @@ class MonthlyCompetitionSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             monthName,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
         ),
         const SizedBox(height: 16),
@@ -50,10 +47,7 @@ class MonthlyCompetitionSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             '3 השומרים המובילים בכל חודש זוכים בפרסים אמיתיים מעסקים מקומיים!',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade700,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
           ),
         ),
         const SizedBox(height: 16),
@@ -99,18 +93,12 @@ class MonthlyCompetitionSection extends StatelessWidget {
             children: [
               Text(
                 'מוביל/ה נוכחי/ת:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
               ),
               const SizedBox(width: 8),
               const Text(
                 'orion chassid',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
               const Text(
@@ -128,4 +116,3 @@ class MonthlyCompetitionSection extends StatelessWidget {
     );
   }
 }
-

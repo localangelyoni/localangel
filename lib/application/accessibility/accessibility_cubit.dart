@@ -37,7 +37,8 @@ class AccessibilityState {
 }
 
 class AccessibilityCubit extends StateNotifier<AccessibilityState> {
-  AccessibilityCubit(this._firestore, this._auth) : super(const AccessibilityState()) {
+  AccessibilityCubit(this._firestore, this._auth)
+    : super(const AccessibilityState()) {
     _init();
   }
 
@@ -52,16 +53,20 @@ class AccessibilityCubit extends StateNotifier<AccessibilityState> {
       return;
     }
 
-    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((snap) {
+    _userSub = _firestore.collection('users').doc(user.uid).snapshots().listen((
+      snap,
+    ) {
       final data = snap.data() ?? {};
       final settings = (data['settings'] as Map?) ?? {};
       final accessibility = (settings['accessibility'] as Map?) ?? {};
 
       state = state.copyWith(
-        highContrastMode: (accessibility['high_contrast_mode'] as bool?) ?? false,
+        highContrastMode:
+            (accessibility['high_contrast_mode'] as bool?) ?? false,
         largeText: (accessibility['large_text'] as bool?) ?? false,
         simpleMode: (accessibility['simple_mode'] as bool?) ?? false,
-        voiceOverEnabled: (accessibility['voice_over_enabled'] as bool?) ?? false,
+        voiceOverEnabled:
+            (accessibility['voice_over_enabled'] as bool?) ?? false,
         isLoading: false,
       );
     });
@@ -110,8 +115,8 @@ class AccessibilityCubit extends StateNotifier<AccessibilityState> {
             'large_text': state.largeText,
             'simple_mode': state.simpleMode,
             'voice_over_enabled': state.voiceOverEnabled,
-          }
-        }
+          },
+        },
       }, SetOptions(merge: true));
     } catch (e) {
       // Error handling - could emit error state if needed
@@ -126,10 +131,10 @@ class AccessibilityCubit extends StateNotifier<AccessibilityState> {
   }
 }
 
-final accessibilityCubitProvider = StateNotifierProvider<AccessibilityCubit, AccessibilityState>((ref) {
-  return AccessibilityCubit(
-    FirebaseFirestore.instance,
-    FirebaseAuth.instance,
-  );
-});
-
+final accessibilityCubitProvider =
+    StateNotifierProvider<AccessibilityCubit, AccessibilityState>((ref) {
+      return AccessibilityCubit(
+        FirebaseFirestore.instance,
+        FirebaseAuth.instance,
+      );
+    });

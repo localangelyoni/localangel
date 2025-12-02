@@ -12,14 +12,17 @@ class PointsSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = nextGoalPoints > 0 ? (totalPoints / nextGoalPoints).clamp(0.0, 1.0) : 0.0;
-    final remainingPoints = (nextGoalPoints - totalPoints).clamp(0, nextGoalPoints);
+    final progress = nextGoalPoints > 0
+        ? (totalPoints / nextGoalPoints).clamp(0.0, 1.0)
+        : 0.0;
+    final remainingPoints = (nextGoalPoints - totalPoints).clamp(
+      0,
+      nextGoalPoints,
+    );
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -38,11 +41,7 @@ class PointsSummaryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.emoji_events,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                const Icon(Icons.emoji_events, color: Colors.white, size: 28),
                 const SizedBox(width: 12),
                 const Text(
                   'הנקודות שלך',
@@ -118,4 +117,3 @@ class PointsSummaryCard extends StatelessWidget {
     );
   }
 }
-

@@ -25,7 +25,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeCubitProvider);
-    
+
     // Determine role title
     String? roleTitle;
     if (homeState.isManager) {
@@ -111,7 +111,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
                         CommunityFeedCard(
                           onShowAll: () {
-                            Navigator.of(context).pushNamed('/community_alerts');
+                            Navigator.of(
+                              context,
+                            ).pushNamed('/community_alerts');
                           },
                         ),
                       ],
@@ -156,4 +158,3 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 }
-

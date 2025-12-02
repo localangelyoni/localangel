@@ -18,10 +18,7 @@ class AwardsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(
           'הפרסים שלי',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -62,7 +59,9 @@ class AwardsPage extends ConsumerWidget {
                         // Scroll to badges section or show all badges
                         // For now, just show a message
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('כל הפרסים מוצגים למטה')),
+                          const SnackBar(
+                            content: Text('כל הפרסים מוצגים למטה'),
+                          ),
                         );
                       },
                     ),

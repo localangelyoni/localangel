@@ -24,9 +24,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     // switch to stream: listen for changes
     final id = widget.chatId;
     if (id != null) {
-      FirebaseFirestore.instance.collection('chats').doc(id).snapshots().listen((doc) {
-        if (mounted) setState(() => _chat = doc);
-      });
+      FirebaseFirestore.instance.collection('chats').doc(id).snapshots().listen(
+        (doc) {
+          if (mounted) setState(() => _chat = doc);
+        },
+      );
     }
   }
 
@@ -37,13 +39,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   Future<void> _load() async {
-    final id = widget.chatId ?? ModalRoute.of(context)?.settings.arguments as String?;
+    final id =
+        widget.chatId ?? ModalRoute.of(context)?.settings.arguments as String?;
     if (id == null) {
       setState(() => _loading = false);
       return;
     }
     try {
-      final doc = await FirebaseFirestore.instance.collection('chats').doc(id).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(id)
+          .get();
       if (mounted) setState(() => _chat = doc);
     } catch (_) {}
     if (mounted) setState(() => _loading = false);
@@ -91,9 +97,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 final m = messages[i];
                 final mine = m['sender_id'] == uid;
                 return Align(
-                  alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: mine
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     decoration: BoxDecoration(
                       color: mine ? const Color(0xFF7C3AED) : Colors.white,
@@ -102,7 +113,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     ),
                     child: Text(
                       (m['message'] as String?) ?? '',
-                      style: TextStyle(color: mine ? Colors.white : Colors.black87),
+                      style: TextStyle(
+                        color: mine ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ),
                 );
@@ -117,11 +130,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   child: TextField(
                     onChanged: (v) => setState(() => _newMessage = v),
                     controller: TextEditingController(text: _newMessage),
-                    decoration: const InputDecoration(hintText: 'כתבו הודעה...'),
+                    decoration: const InputDecoration(
+                      hintText: 'כתבו הודעה...',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                FilledButton(onPressed: _send, child: const Icon(Icons.send, size: 18)),
+                FilledButton(
+                  onPressed: _send,
+                  child: const Icon(Icons.send, size: 18),
+                ),
               ],
             ),
           ),
@@ -130,5 +148,3 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     );
   }
 }
-
-

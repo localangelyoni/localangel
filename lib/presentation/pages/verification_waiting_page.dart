@@ -6,7 +6,8 @@ class VerificationWaitingPage extends StatefulWidget {
   const VerificationWaitingPage({super.key});
 
   @override
-  State<VerificationWaitingPage> createState() => _VerificationWaitingPageState();
+  State<VerificationWaitingPage> createState() =>
+      _VerificationWaitingPageState();
 }
 
 class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
@@ -27,7 +28,10 @@ class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
       return;
     }
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
       final data = doc.data() ?? {};
       _managerStatus = data['manager_status'] as String?;
       _requestedRole = data['requested_role'] as String?;
@@ -115,7 +119,13 @@ class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text('סטטוס אימות', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+                      const Text(
+                        'סטטוס אימות',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Container(
                         height: 96,
@@ -128,28 +138,48 @@ class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
                         child: Icon(icon, color: color, size: 48),
                       ),
                       const SizedBox(height: 16),
-                      Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text(description, style: TextStyle(color: Colors.grey.shade700)),
+                      Text(
+                        description,
+                        style: TextStyle(color: Colors.grey.shade700),
+                      ),
                       const SizedBox(height: 20),
                       const Divider(),
                       const SizedBox(height: 12),
-                      const Text('הסטטוס הנוכחי שלך', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                      const Text(
+                        'הסטטוס הנוכחי שלך',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           const Text('תפקיד: '),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: Text(isPending
-                                ? 'מנהל/ת ממתין/ה'
-                                : isRejected
-                                    ? 'שומר/ת'
-                                    : 'מנהל/ת'),
+                            child: Text(
+                              isPending
+                                  ? 'מנהל/ת ממתין/ה'
+                                  : isRejected
+                                  ? 'שומר/ת'
+                                  : 'מנהל/ת',
+                            ),
                           ),
                         ],
                       ),
@@ -157,18 +187,31 @@ class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(isPending ? Icons.shield_outlined : Icons.check_circle_outline, color: Colors.black87),
+                          Icon(
+                            isPending
+                                ? Icons.shield_outlined
+                                : Icons.check_circle_outline,
+                            color: Colors.black87,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(isPending ? 'מה קורה עכשיו?' : 'ברוך הבא, מנהל/ת!',
-                                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                                Text(
+                                  isPending
+                                      ? 'מה קורה עכשיו?'
+                                      : 'ברוך הבא, מנהל/ת!',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                                 const SizedBox(height: 6),
-                                Text(isPending
-                                    ? 'המלאכ/ה המיועד/ת שלך יאשר/תאשר את הבקשה. במידת הצורך נפנה אליך.'
-                                    : 'כעת תוכל/י ליצור בקשות עבור מלאכים ולנהל חיבורים.'),
+                                Text(
+                                  isPending
+                                      ? 'המלאכ/ה המיועד/ת שלך יאשר/תאשר את הבקשה. במידת הצורך נפנה אליך.'
+                                      : 'כעת תוכל/י ליצור בקשות עבור מלאכים ולנהל חיבורים.',
+                                ),
                               ],
                             ),
                           ),
@@ -177,7 +220,9 @@ class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
                       const SizedBox(height: 20),
                       FilledButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacementNamed('/dashboard');
+                          Navigator.of(
+                            context,
+                          ).pushReplacementNamed('/dashboard');
                         },
                         child: const Text('המשך ללוח המחוונים'),
                       ),
@@ -192,7 +237,3 @@ class _VerificationWaitingPageState extends State<VerificationWaitingPage> {
     );
   }
 }
-
-
-
-

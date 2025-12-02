@@ -9,10 +9,7 @@ class PrivacyPolicyPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'מדיניות פרטיות',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
@@ -25,10 +22,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           children: [
             Text(
               'עדכון אחרון: 19/08/2025',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -39,19 +33,19 @@ class PrivacyPolicyPage extends StatelessWidget {
             _buildSection(
               '1. איזה מידע אנו אוספים',
               'אנו אוספים את המידע הבא:\n\n'
-              '• מידע אישי: שם, טלפון, אימייל\n'
-              '• מידע רפואי בסיסי (בהסכמה): מצבי חירום (למשל, אלרגיות, התקפים)\n'
-              '• נתוני מיקום (GPS): נאספים רק במהלך בקשות עזרה או מקרי חירום, אלא אם הופעל שיתוף רציף\n'
-              '• נתונים טכניים: שימוש באפליקציה, חיבור לאינטרנט\n'
-              '• נתוני שומרים: אימות זהות והעדפות התנדבות',
+                  '• מידע אישי: שם, טלפון, אימייל\n'
+                  '• מידע רפואי בסיסי (בהסכמה): מצבי חירום (למשל, אלרגיות, התקפים)\n'
+                  '• נתוני מיקום (GPS): נאספים רק במהלך בקשות עזרה או מקרי חירום, אלא אם הופעל שיתוף רציף\n'
+                  '• נתונים טכניים: שימוש באפליקציה, חיבור לאינטרנט\n'
+                  '• נתוני שומרים: אימות זהות והעדפות התנדבות',
             ),
             _buildSection(
               '2. כיצד אנו משתמשים בנתונים',
               'המידע שנאסף משמש:\n\n'
-              '• כדי להפעיל את השירות\n'
-              '• לשפר את חווית המשתמש\n'
-              '• להבטיח בטיחות\n'
-              '• ולספק נתונים סטטיסטיים אנונימיים למחקר',
+                  '• כדי להפעיל את השירות\n'
+                  '• לשפר את חווית המשתמש\n'
+                  '• להבטיח בטיחות\n'
+                  '• ולספק נתונים סטטיסטיים אנונימיים למחקר',
             ),
             _buildSection(
               '3. שיתוף נתונים',
@@ -65,10 +59,7 @@ class PrivacyPolicyPage extends StatelessWidget {
               '5. שליטה על שיתוף מיקום',
               'משתמשים יכולים לבחור אם לשתף מיקום באופן רציף או רק במהלך בקשות עזרה. כברירת מחדל, שיתוף המיקום מוגבל למקרי חירום.',
             ),
-            _buildSection(
-              '6. יצירת קשר',
-              'אימייל: localangel@yoni.com',
-            ),
+            _buildSection('6. יצירת קשר', 'אימייל: localangel@yoni.com'),
             const SizedBox(height: 40),
           ],
         ),
@@ -84,19 +75,12 @@ class PrivacyPolicyPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(
-            content,
-            style: const TextStyle(fontSize: 16, height: 1.6),
-          ),
+          Text(content, style: const TextStyle(fontSize: 16, height: 1.6)),
         ],
       ),
     );
   }
 }
-

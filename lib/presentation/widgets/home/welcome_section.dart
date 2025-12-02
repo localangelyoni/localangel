@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class WelcomeSection extends StatelessWidget {
-  const WelcomeSection({
-    super.key,
-    required this.fullName,
-    this.subtitle,
-  });
+  const WelcomeSection({super.key, required this.fullName, this.subtitle});
 
   final String fullName;
   final String? subtitle;
@@ -19,19 +15,13 @@ class WelcomeSection extends StatelessWidget {
         children: [
           Text(
             'ברוך שובך, $fullName',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-            ),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle!,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade700,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
             ),
           ],
         ],
@@ -39,4 +29,3 @@ class WelcomeSection extends StatelessWidget {
     );
   }
 }
-

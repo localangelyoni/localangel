@@ -46,11 +46,19 @@ class _MyChatsPageState extends State<MyChatsPage> {
                   itemBuilder: (context, i) {
                     final c = docs[i].data();
                     final lastMsg = (c['messages'] as List?)?.cast<Map>() ?? [];
-                    final subtitle = lastMsg.isNotEmpty ? (lastMsg.last['message'] as String? ?? '') : '';
+                    final subtitle = lastMsg.isNotEmpty
+                        ? (lastMsg.last['message'] as String? ?? '')
+                        : '';
                     return ListTile(
                       title: const Text('צ\'אט'),
-                      subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      onTap: () => Navigator.of(context).pushNamed('/chat_detail', arguments: docs[i].id),
+                      subtitle: Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).pushNamed('/chat_detail', arguments: docs[i].id),
                     );
                   },
                 );
@@ -59,5 +67,3 @@ class _MyChatsPageState extends State<MyChatsPage> {
     );
   }
 }
-
-

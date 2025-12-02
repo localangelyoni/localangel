@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CommunityFeedCard extends StatelessWidget {
-  const CommunityFeedCard({
-    super.key,
-    this.onShowAll,
-  });
+  const CommunityFeedCard({super.key, this.onShowAll});
 
   final VoidCallback? onShowAll;
 
@@ -12,9 +9,7 @@ class CommunityFeedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -43,16 +38,16 @@ class CommunityFeedCard extends StatelessWidget {
                 OutlinedButton(
                   onPressed: onShowAll,
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     minimumSize: const Size(0, 32),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'הצג הכל',
-                    style: TextStyle(fontSize: 12),
-                  ),
+                  child: const Text('הצג הכל', style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),
@@ -69,18 +64,12 @@ class CommunityFeedCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     'אין התראות פעילות',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'כל הכבוד! נראה שהכל בסדר עם כולם',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -92,4 +81,3 @@ class CommunityFeedCard extends StatelessWidget {
     );
   }
 }
-

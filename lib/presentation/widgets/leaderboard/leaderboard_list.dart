@@ -27,10 +27,7 @@ class LeaderboardList extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'אין נתונים להצגה',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -84,20 +81,19 @@ class LeaderboardList extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         // List items
-        ...entries.map((entry) => _LeaderboardItem(
-              entry: entry,
-              isCurrentUser: entry.rank == currentUserRank,
-            )),
+        ...entries.map(
+          (entry) => _LeaderboardItem(
+            entry: entry,
+            isCurrentUser: entry.rank == currentUserRank,
+          ),
+        ),
       ],
     );
   }
 }
 
 class _LeaderboardItem extends StatelessWidget {
-  const _LeaderboardItem({
-    required this.entry,
-    required this.isCurrentUser,
-  });
+  const _LeaderboardItem({required this.entry, required this.isCurrentUser});
 
   final LeaderboardEntry entry;
   final bool isCurrentUser;
@@ -132,10 +128,14 @@ class _LeaderboardItem extends StatelessWidget {
           CircleAvatar(
             radius: 20,
             backgroundColor: const Color(0xFF7C3AED),
-            backgroundImage: entry.avatarUrl != null ? NetworkImage(entry.avatarUrl!) : null,
+            backgroundImage: entry.avatarUrl != null
+                ? NetworkImage(entry.avatarUrl!)
+                : null,
             child: entry.avatarUrl == null
                 ? Text(
-                    entry.fullName.isNotEmpty ? entry.fullName[0].toUpperCase() : 'U',
+                    entry.fullName.isNotEmpty
+                        ? entry.fullName[0].toUpperCase()
+                        : 'U',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -176,4 +176,3 @@ class _LeaderboardItem extends StatelessWidget {
     );
   }
 }
-

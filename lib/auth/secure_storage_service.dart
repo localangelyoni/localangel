@@ -2,10 +2,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Secure storage abstraction using flutter_secure_storage.
 class SecureStorageService {
-  SecureStorageService() : _storage = const FlutterSecureStorage(
-        aOptions: AndroidOptions(
-          encryptedSharedPreferences: true,
-        ),
+  SecureStorageService()
+    : _storage = const FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
         iOptions: IOSOptions(
           accessibility: KeychainAccessibility.first_unlock_this_device,
         ),
@@ -29,7 +28,3 @@ class SecureStorageService {
     await _storage.deleteAll();
   }
 }
-
-
-
-

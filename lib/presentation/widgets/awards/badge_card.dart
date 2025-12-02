@@ -19,9 +19,7 @@ class BadgeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () {
           if (isEarned) {
@@ -82,11 +80,7 @@ class BadgeCard extends StatelessWidget {
               const SizedBox(height: 4),
               // Lock icon if not earned
               if (!isEarned)
-                Icon(
-                  Icons.lock_outline,
-                  size: 16,
-                  color: Colors.grey.shade400,
-                ),
+                Icon(Icons.lock_outline, size: 16, color: Colors.grey.shade400),
             ],
           ),
         ),
@@ -98,9 +92,7 @@ class BadgeCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
@@ -113,12 +105,7 @@ class BadgeCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 20),
-              ),
-            ),
+            Expanded(child: Text(title, style: const TextStyle(fontSize: 20))),
           ],
         ),
         content: Column(
@@ -127,10 +114,7 @@ class BadgeCard extends StatelessWidget {
           children: [
             Text(
               description,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade700,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
             ),
             const SizedBox(height: 16),
             Container(
@@ -145,9 +129,7 @@ class BadgeCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   const Text(
                     'תג זה הושג!',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -164,4 +146,3 @@ class BadgeCard extends StatelessWidget {
     );
   }
 }
-

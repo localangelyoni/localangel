@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum HomeTab {
-  home,
-  awards,
-  connections,
-  notifications,
-}
+enum HomeTab { home, awards, connections, notifications }
 
 class HomeBottomNavigationBar extends StatelessWidget {
   const HomeBottomNavigationBar({
@@ -84,11 +79,7 @@ class HomeBottomNavigationBar extends StatelessWidget {
                   color: Color(0xFF7C3AED),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 28),
               ),
             ),
           ),
@@ -135,4 +126,3 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
-
