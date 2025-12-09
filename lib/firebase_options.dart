@@ -63,6 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '725283406735',
     projectId: 'localangel-e4ebe',
     storageBucket: 'localangel-e4ebe.firebasestorage.app',
+    iosClientId: '725283406735-9sf72gkbe0kvc73hkqeehr9dehvm5s7g.apps.googleusercontent.com',
     iosBundleId: 'com.example.localangel',
   );
+
 }

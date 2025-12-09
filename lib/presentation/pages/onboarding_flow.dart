@@ -14,6 +14,7 @@ class OnboardingFlow extends StatefulWidget {
 class _OnboardingFlowState extends State<OnboardingFlow> {
   PreAuthOnboardingStep _step = PreAuthOnboardingStep.welcome;
   int _currentSlide = 0;
+  String? _selectedRole; // 'guardian' | 'angel' | 'manager'
   final PageController _pageController = PageController();
 
   @override
@@ -29,7 +30,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   void _nextSlideOrStep() {
     if (_step != PreAuthOnboardingStep.slides) return;
     if (_currentSlide < 2) {
-      _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
     } else {
       setState(() => _step = PreAuthOnboardingStep.auth);
     }
@@ -57,8 +61,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: _ProgressBar(current: _step.index, total: PreAuthOnboardingStep.values.length),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: _ProgressBar(
+                  current: _step.index,
+                  total: PreAuthOnboardingStep.values.length,
+                ),
               ),
               Expanded(
                 child: ConstrainedBox(
@@ -70,6 +80,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           _InCardNav(
                             canBack: _step != PreAuthOnboardingStep.welcome,
@@ -83,7 +94,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                                       _step = PreAuthOnboardingStep.welcome;
                                     } else {
                                       _pageController.previousPage(
-                                        duration: const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         curve: Curves.easeOut,
                                       );
                                     }
@@ -96,7 +109,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                             },
                           ),
                           const SizedBox(height: 8),
-                          _buildStepContent(),
+                          Expanded(
+                            child: _buildStepContent(),
+                          ),
                         ],
                       ),
                     ),
@@ -114,14 +129,22 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   Widget _buildStepContent() {
     switch (_step) {
       case PreAuthOnboardingStep.welcome:
-        return _WelcomeStep(onStart: _startJourney);
+        return _WelcomeStep(
+          selectedRole: _selectedRole,
+          onRoleSelected: (role) => setState(() => _selectedRole = role),
+          onStart: _startJourney,
+        );
       case PreAuthOnboardingStep.slides:
         return _SlidesStep(
           controller: _pageController,
           currentIndex: _currentSlide,
           onPageChanged: (i) => setState(() => _currentSlide = i),
           onDotTap: (i) {
-            _pageController.animateToPage(i, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+            _pageController.animateToPage(
+              i,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+            );
           },
           onNext: _nextSlideOrStep,
         );
@@ -160,24 +183,174 @@ class _InCardNav extends StatelessWidget {
 }
 
 class _WelcomeStep extends StatelessWidget {
-  const _WelcomeStep({required this.onStart});
+  const _WelcomeStep({
+    required this.selectedRole,
+    required this.onRoleSelected,
+    required this.onStart,
+  });
 
+  final String? selectedRole;
+  final ValueChanged<String> onRoleSelected;
   final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(child: Image.asset('assets/logo.png', height: 72, errorBuilder: (_, __, ___) => const SizedBox.shrink())),
+        Center(
+          child: ClipOval(
+            child: Container(
+              color: Colors.white,
+              width: 100,
+              height: 100,
+              alignment: Alignment.center,
+              child: Image.asset(
+                'assets/logo.png',
+                height: 90,
+                width: 90,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.volunteer_activism,
+                  size: 48,
+                  color: Color(0xFF7C3AED),
+                ),
+              ),
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
-        Text(AppLocalizations.of(context)!.welcome_title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        Text(
+          AppLocalizations.of(context)!.welcome_title,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         Text(AppLocalizations.of(context)!.welcome_subtitle),
         const SizedBox(height: 24),
-        FilledButton(onPressed: onStart, child: Text(AppLocalizations.of(context)!.welcome_start)),
+        _RoleRadioButton(
+          role: 'guardian',
+          title: 'אני שומר/ת',
+          subtitle: 'רוצה לעזור',
+          icon: Icons.volunteer_activism_outlined,
+          isSelected: selectedRole == 'guardian',
+          onTap: () => onRoleSelected('guardian'),
+        ),
+        const SizedBox(height: 12),
+        _RoleRadioButton(
+          role: 'angel',
+          title: 'אני מלאכ/ית',
+          subtitle: 'זקוק/ה לתמיכה',
+          icon: Icons.auto_awesome,
+          isSelected: selectedRole == 'angel',
+          onTap: () => onRoleSelected('angel'),
+        ),
+        const SizedBox(height: 12),
+        _RoleRadioButton(
+          role: 'manager',
+          title: 'אני מנהל/ת',
+          subtitle: 'מנהל/ת מלאכ/ית',
+          icon: Icons.admin_panel_settings_outlined,
+          isSelected: selectedRole == 'manager',
+          onTap: () => onRoleSelected('manager'),
+        ),
+        const Spacer(),
+        FilledButton(
+          onPressed: selectedRole != null ? onStart : null,
+          child: Text(AppLocalizations.of(context)!.welcome_start),
+        ),
       ],
+    );
+  }
+}
+
+class _RoleRadioButton extends StatelessWidget {
+  const _RoleRadioButton({
+    required this.role,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String role;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '$title: $subtitle',
+      button: true,
+      selected: isSelected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFF3E8FF) : Colors.white,
+            border: Border.all(
+              color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade300,
+              width: isSelected ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? Colors.white : Colors.grey.shade700,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Radio<String>(
+                value: role,
+                groupValue: isSelected ? role : null,
+                onChanged: (_) => onTap(),
+                activeColor: const Color(0xFF7C3AED),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -200,17 +373,32 @@ class _SlidesStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final slides = const [
-      ('people', 'הקהילה במרכז', 'מלאך שומר מחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה, ומספקת תמיכה יומיומית.'),
-      ('shield', 'אמון ובטיחות', 'כל פעולה מתועדת. כל מסייע מאומת. האמון שלכם הוא מעל הכל.'),
-      ('award', 'צברו נקודות על עזרה', 'שומרים צוברים נקודות, תגים והכרה על פעולתם.'),
-      ('case', 'התפקיד שלך משנה', 'בחרו להיות שומר/ת או מנהל/ת. לכל תפקיד אחריות שונה.'),
+      (
+        'people',
+        'הקהילה במרכז',
+        'מלאך שומר מחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה, ומספקת תמיכה יומיומית.',
+      ),
+      (
+        'shield',
+        'אמון ובטיחות',
+        'כל פעולה מתועדת. כל מסייע מאומת. האמון שלכם הוא מעל הכל.',
+      ),
+      (
+        'award',
+        'צברו נקודות על עזרה',
+        'שומרים צוברים נקודות, תגים והכרה על פעולתם.',
+      ),
+      (
+        'case',
+        'התפקיד שלך משנה',
+        'בחרו להיות שומר/ת או מנהל/ת. לכל תפקיד אחריות שונה.',
+      ),
     ];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          height: 300,
+        Expanded(
           child: PageView.builder(
             controller: controller,
             onPageChanged: onPageChanged,
@@ -222,14 +410,23 @@ class _SlidesStep extends StatelessWidget {
                 children: [
                   _IconTile(kind: s.$1),
                   const SizedBox(height: 16),
-                  Text(s.$2, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                  Text(
+                    s.$2,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
                       s.$3,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade700),
+                      style: TextStyle(
+                        color: Colors.grey.shade900,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ],
@@ -260,7 +457,10 @@ class _SlidesStep extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 16),
-        FilledButton(onPressed: onNext, child: Text(currentIndex < slides.length - 1 ? 'הבא' : 'בואו נתחיל')),
+        FilledButton(
+          onPressed: onNext,
+          child: Text(currentIndex < slides.length - 1 ? 'הבא' : 'בואו נתחיל'),
+        ),
       ],
     );
   }
@@ -291,7 +491,10 @@ class _IconTile extends StatelessWidget {
     return Container(
       height: 96,
       width: 96,
-      decoration: BoxDecoration(color: const Color(0xFFF3E8FF), borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3E8FF),
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Icon(icon, color: const Color(0xFF7C3AED), size: 48),
     );
   }
@@ -308,7 +511,11 @@ class _ProgressBar extends StatelessWidget {
     final value = (current + 1) / total;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: LinearProgressIndicator(value: value, minHeight: 6, borderRadius: const BorderRadius.all(Radius.circular(4))),
+      child: LinearProgressIndicator(
+        value: value,
+        minHeight: 6,
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+      ),
     );
   }
 }

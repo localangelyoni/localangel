@@ -205,13 +205,21 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              height: 4,
-              color: Colors.white.withValues(alpha: 0.2),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerRight,
-                widthFactor: 0.33,
-                child: Container(color: Colors.white),
+            Center(
+              child: ClipOval(
+                child: Container(
+                  color: Colors.white,
+                  width: 100,
+                  height: 100,
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'assets/logo.png',
+                    height: 90,
+                    width: 90,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.volunteer_activism, size: 48, color: Color(0xFF7C3AED)),
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -227,12 +235,14 @@ class _LoginSignupPageState extends ConsumerState<LoginSignupPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              IconButton(icon: const Icon(Icons.arrow_forward), onPressed: () => Navigator.of(context).pop()),
-                              const Spacer(),
+                              IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
+
                               Text(
                                 _isLoginMode ? 'התחברות' : 'הרשמה',
                                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),

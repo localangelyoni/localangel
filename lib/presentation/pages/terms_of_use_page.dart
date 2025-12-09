@@ -7,10 +7,7 @@ class TermsOfUsePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'תנאי שימוש',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('תנאי שימוש', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
@@ -20,10 +17,7 @@ class TermsOfUsePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'עדכון אחרון: 19/08/2025',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
+            Text('עדכון אחרון: 19/08/2025', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
             const SizedBox(height: 24),
             const Text(
               'ברוכים הבאים ל-Local Angel – אפליקציה חכמה מבוססת קהילה המחברת בין אנשים עם צרכים מיוחדים ("משתמשים מוגנים") לבין מתנדבים מהקהילה ("שומרים"). על ידי שימוש באפליקציה זו, הנכם מסכימים לתנאי שירות אלה.',
@@ -52,12 +46,9 @@ class TermsOfUsePage extends StatelessWidget {
             ),
             _buildSection(
               '5. הגבלת אחריות',
-              'השירות מסופק "כפי שהוא". Local Angel אינה אחראית לנזקים עקיפים או לבעיות טכניות שמחוץ לשליטתה.',
+              'השירות מסופק "כפי שהוא". מלאך שומר אינה אחראית לנזקים עקיפים או לבעיות טכניות שמחוץ לשליטתה.',
             ),
-            _buildSection(
-              '6. יצירת קשר',
-              'לשאלות או הערות, אנא צרו קשר בכתובת: localangel@yoni.com',
-            ),
+            _buildSection('6. יצירת קשר', 'לשאלות או הערות, אנא צרו קשר בכתובת: localangel@yoni.com'),
             const SizedBox(height: 40),
           ],
         ),
@@ -71,10 +62,7 @@ class TermsOfUsePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(content, style: const TextStyle(fontSize: 16, height: 1.6)),
         ],

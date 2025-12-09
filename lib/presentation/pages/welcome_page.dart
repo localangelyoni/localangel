@@ -8,16 +8,7 @@ import 'package:localangel/presentation/widgets/legal_consent_modal.dart';
 import 'package:localangel/l10n/app_localizations.dart';
 import 'package:localangel/auth/ui/login_signup_page.dart';
 
-enum OnboardingStep {
-  welcome,
-  slides,
-  login,
-  role,
-  terms,
-  location,
-  profilePicture,
-  completed,
-}
+enum OnboardingStep { welcome, slides, login, role, terms, location, profilePicture, completed }
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -56,31 +47,20 @@ class _WelcomePageState extends State<WelcomePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     try {
-      final userSnap = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final userSnap = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final userData = userSnap.data() ?? {};
       final legal = (userData['legal'] as Map?) ?? {};
       final accepted = legal['accepted'] == true;
       String currentVersion = 'v1';
       try {
-        final settings = await FirebaseFirestore.instance
-            .collection('settings')
-            .doc('app_settings')
-            .get();
+        final settings = await FirebaseFirestore.instance.collection('settings').doc('app_settings').get();
         final sData = settings.data() ?? {};
-        currentVersion =
-            ((sData['legal'] as Map?)?['version'] as String?) ?? 'v1';
+        currentVersion = ((sData['legal'] as Map?)?['version'] as String?) ?? 'v1';
       } catch (_) {}
       final versionMatches = (legal['version'] as String?) == currentVersion;
       if (!accepted || !versionMatches) {
         if (!mounted) return;
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => const LegalConsentModal(),
-        );
+        await showDialog(context: context, barrierDismissible: false, builder: (_) => const LegalConsentModal());
       }
     } catch (_) {
       // ignore – if load fails we avoid blocking the user
@@ -94,10 +74,7 @@ class _WelcomePageState extends State<WelcomePage> {
   void _nextSlideOrStep() {
     if (_step != OnboardingStep.slides) return;
     if (_currentSlide < 2) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
+      _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
     } else {
       setState(() => _step = OnboardingStep.login);
     }
@@ -145,8 +122,7 @@ class _WelcomePageState extends State<WelcomePage> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.deniedForever ||
-          permission == LocationPermission.denied) {
+      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
         setState(() {
           _locationEnabled = false;
           _locationError = 'הרשאת מיקום נדחתה';
@@ -166,20 +142,12 @@ class _WelcomePageState extends State<WelcomePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     final picker = ImagePicker();
-    final file = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
+    final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (file == null) return;
     setState(() => _isSubmitting = true);
     try {
-      final ref = FirebaseStorage.instance.ref().child(
-        'avatars/${user.uid}.jpg',
-      );
-      await ref.putData(
-        await file.readAsBytes(),
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+      final ref = FirebaseStorage.instance.ref().child('avatars/${user.uid}.jpg');
+      await ref.putData(await file.readAsBytes(), SettableMetadata(contentType: 'image/jpeg'));
       final url = await ref.getDownloadURL();
       setState(() {
         _photoSelected = true;
@@ -187,9 +155,7 @@ class _WelcomePageState extends State<WelcomePage> {
       });
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('שגיאה בהעלאת התמונה')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('שגיאה בהעלאת התמונה')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -205,24 +171,16 @@ class _WelcomePageState extends State<WelcomePage> {
         'email': user.email,
         'avatar_url': _uploadedAvatarUrl,
         'needs_support': _selectedRole == 'angel',
-        'is_guardian':
-            _selectedRole == 'guardian' || _selectedRole == 'manager',
+        'is_guardian': _selectedRole == 'guardian' || _selectedRole == 'manager',
         'is_angel_manager': _selectedRole == 'manager',
         'requested_role': _selectedRole == 'manager' ? 'manager' : null,
         'manager_status': _selectedRole == 'manager' ? 'pending' : null,
         'onboarding_completed': true,
         'guardian_preferences': {'is_available': true},
-        'legal': {
-          'accepted': _termsAccepted,
-          'acceptedAt': FieldValue.serverTimestamp(),
-          'version': 1,
-        },
+        'legal': {'accepted': _termsAccepted, 'acceptedAt': FieldValue.serverTimestamp(), 'version': 1},
         'updatedAt': FieldValue.serverTimestamp(),
       };
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .set(data, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(data, SetOptions(merge: true));
       // If manager role was requested, send the user to verification waiting page
       if (_selectedRole == 'manager') {
         if (!mounted) return;
@@ -235,9 +193,7 @@ class _WelcomePageState extends State<WelcomePage> {
       });
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('שגיאה בשמירת הפרופיל')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('שגיאה בשמירת הפרופיל')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -261,14 +217,8 @@ class _WelcomePageState extends State<WelcomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: _ProgressBar(
-                  current: _step.index,
-                  total: OnboardingStep.values.length,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: _ProgressBar(current: _step.index, total: OnboardingStep.values.length),
               ),
               Expanded(
                 child: ConstrainedBox(
@@ -282,9 +232,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _InCardNav(
-                            canBack:
-                                _step != OnboardingStep.welcome &&
-                                _step != OnboardingStep.completed,
+                            canBack: _step != OnboardingStep.welcome && _step != OnboardingStep.completed,
                             onBack: () {
                               setState(() {
                                 switch (_step) {
@@ -295,9 +243,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                       _step = OnboardingStep.welcome;
                                     } else {
                                       _pageController.previousPage(
-                                        duration: const Duration(
-                                          milliseconds: 200,
-                                        ),
+                                        duration: const Duration(milliseconds: 200),
                                         curve: Curves.easeOut,
                                       );
                                     }
@@ -342,22 +288,14 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget _buildStepContent() {
     switch (_step) {
       case OnboardingStep.welcome:
-        return _WelcomeStep(
-          onboardingCompleted: _onboardingCompleted,
-          onStart: _startJourney,
-          onGoHome: _goToDashboard,
-        );
+        return _WelcomeStep(onboardingCompleted: _onboardingCompleted, onStart: _startJourney, onGoHome: _goToDashboard);
       case OnboardingStep.slides:
         return _SlidesStep(
           controller: _pageController,
           currentIndex: _currentSlide,
           onPageChanged: (i) => setState(() => _currentSlide = i),
           onDotTap: (i) {
-            _pageController.animateToPage(
-              i,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-            );
+            _pageController.animateToPage(i, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
           },
           onNext: _nextSlideOrStep,
         );
@@ -373,15 +311,8 @@ class _WelcomePageState extends State<WelcomePage> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('תפקיד מנהל/ת'),
-                  content: const Text(
-                    'ב‑MVP, שליחת בקשה תיפתח בהמשך. כרגע מדובר במידע בלבד.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text('סגירה'),
-                    ),
-                  ],
+                  content: const Text('ב‑MVP, שליחת בקשה תיפתח בהמשך. כרגע מדובר במידע בלבד.'),
+                  actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('סגירה'))],
                 ),
               );
             }
@@ -389,7 +320,7 @@ class _WelcomePageState extends State<WelcomePage> {
           onContinue: _continueFromRole,
         );
       case OnboardingStep.terms:
-        return _TermsStep(
+        return TermsStep(
           accepted: _termsAccepted,
           onToggle: (v) => setState(() => _termsAccepted = v),
           onContinue: _continueFromTerms,
@@ -444,11 +375,7 @@ class _InCardNav extends StatelessWidget {
 }
 
 class _WelcomeStep extends StatelessWidget {
-  const _WelcomeStep({
-    required this.onStart,
-    required this.onGoHome,
-    required this.onboardingCompleted,
-  });
+  const _WelcomeStep({required this.onStart, required this.onGoHome, required this.onboardingCompleted});
 
   final VoidCallback onStart;
   final VoidCallback onGoHome;
@@ -461,30 +388,31 @@ class _WelcomeStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          child: Image.asset(
-            'assets/logo.png',
-            height: 72,
-            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          child: ClipOval(
+            child: Container(
+              color: Colors.white,
+              width: 100,
+              height: 100,
+              alignment: Alignment.center,
+              child: Image.asset(
+                'assets/logo.png',
+                height: 90,
+                width: 90,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(Icons.volunteer_activism, size: 48, color: Color(0xFF7C3AED)),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          AppLocalizations.of(context)!.welcome_title,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
+        Text(AppLocalizations.of(context)!.welcome_title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Text(AppLocalizations.of(context)!.welcome_subtitle),
         const SizedBox(height: 24),
-        FilledButton(
-          onPressed: onStart,
-          child: Text(AppLocalizations.of(context)!.welcome_start),
-        ),
+        FilledButton(onPressed: onStart, child: Text(AppLocalizations.of(context)!.welcome_start)),
         if (onboardingCompleted) ...[
           const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: onGoHome,
-            child: Text(AppLocalizations.of(context)!.welcome_go_home),
-          ),
+          OutlinedButton(onPressed: onGoHome, child: Text(AppLocalizations.of(context)!.welcome_go_home)),
         ],
       ],
     );
@@ -509,26 +437,10 @@ class _SlidesStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final slides = const [
-      (
-        'people',
-        'הקהילה במרכז',
-        'מלאך שומר מחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה, ומספקת תמיכה יומיומית.',
-      ),
-      (
-        'shield',
-        'אמון ובטיחות',
-        'כל פעולה מתועדת. כל מסייע מאומת. האמון שלכם הוא מעל הכל.',
-      ),
-      (
-        'award',
-        'צברו נקודות על עזרה',
-        'שומרים צוברים נקודות, תגים והכרה על פעולתם.',
-      ),
-      (
-        'case',
-        'התפקיד שלך משנה',
-        'בחרו להיות שומר/ת או מנהל/ת. לכל תפקיד אחריות שונה.',
-      ),
+      ('people', 'הקהילה במרכז', 'מלאך שומר מחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה, ומספקת תמיכה יומיומית.'),
+      ('shield', 'אמון ובטיחות', 'כל פעולה מתועדת. כל מסייע מאומת. האמון שלכם הוא מעל הכל.'),
+      ('award', 'צברו נקודות על עזרה', 'שומרים צוברים נקודות, תגים והכרה על פעולתם.'),
+      ('case', 'התפקיד שלך משנה', 'בחרו להיות שומר/ת או מנהל/ת. לכל תפקיד אחריות שונה.'),
     ];
 
     return Column(
@@ -547,13 +459,7 @@ class _SlidesStep extends StatelessWidget {
                 children: [
                   _IconTile(kind: s.$1),
                   const SizedBox(height: 16),
-                  Text(
-                    s.$2,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  Text(s.$2, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -583,9 +489,7 @@ class _SlidesStep extends StatelessWidget {
                   height: selected ? 12 : 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: selected
-                        ? const Color(0xFF7C3AED)
-                        : Colors.grey.shade400,
+                    color: selected ? const Color(0xFF7C3AED) : Colors.grey.shade400,
                   ),
                 ),
               ),
@@ -593,10 +497,7 @@ class _SlidesStep extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 16),
-        FilledButton(
-          onPressed: onNext,
-          child: Text(currentIndex < slides.length - 1 ? 'הבא' : 'בואו נתחיל'),
-        ),
+        FilledButton(onPressed: onNext, child: Text(currentIndex < slides.length - 1 ? 'הבא' : 'בואו נתחיל')),
       ],
     );
   }
@@ -627,10 +528,7 @@ class _IconTile extends StatelessWidget {
     return Container(
       height: 96,
       width: 96,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3E8FF),
-        borderRadius: BorderRadius.circular(24),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFF3E8FF), borderRadius: BorderRadius.circular(24)),
       child: Icon(icon, color: const Color(0xFF7C3AED), size: 48),
     );
   }
@@ -642,9 +540,7 @@ class _LoginStep extends StatelessWidget {
   final VoidCallback onContinue;
 
   Future<void> _navigateToLogin(BuildContext context) async {
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const LoginSignupPage()));
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginSignupPage()));
 
     // After returning from login page, check if user is authenticated
     if (context.mounted && FirebaseAuth.instance.currentUser != null) {
@@ -658,10 +554,7 @@ class _LoginStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'התחברות',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        const Text('התחברות', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 24),
         FilledButton(
           onPressed: () => _navigateToLogin(context),
@@ -674,11 +567,7 @@ class _LoginStep extends StatelessWidget {
 }
 
 class _RoleStep extends StatelessWidget {
-  const _RoleStep({
-    required this.selectedRole,
-    required this.onSelect,
-    required this.onContinue,
-  });
+  const _RoleStep({required this.selectedRole, required this.onSelect, required this.onContinue});
 
   final String? selectedRole;
   final ValueChanged<String> onSelect;
@@ -694,9 +583,7 @@ class _RoleStep extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: selected ? const Color(0xFF7C3AED) : Colors.grey.shade300,
-            ),
+            border: Border.all(color: selected ? const Color(0xFF7C3AED) : Colors.grey.shade300),
             color: selected ? const Color(0xFFF3E8FF) : Colors.white,
           ),
           child: Row(
@@ -704,21 +591,12 @@ class _RoleStep extends StatelessWidget {
               Container(
                 height: 44,
                 width: 44,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(12)),
                 child: Icon(icon, color: const Color(0xFF7C3AED)),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               ),
               Icon(
                 selected ? Icons.check_circle : Icons.circle_outlined,
@@ -734,10 +612,7 @@ class _RoleStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'בחירת תפקיד',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        const Text('בחירת תפקיד', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         roleTile('guardian', 'אני שומר/ת', Icons.volunteer_activism_outlined),
         const SizedBox(height: 8),
@@ -745,31 +620,24 @@ class _RoleStep extends StatelessWidget {
         const SizedBox(height: 8),
         roleTile('manager', 'אני מנהל/ת', Icons.admin_panel_settings_outlined),
         const SizedBox(height: 16),
-        FilledButton(
-          onPressed: selectedRole == null ? null : onContinue,
-          child: const Text('המשך'),
-        ),
+        FilledButton(onPressed: selectedRole == null ? null : onContinue, child: const Text('המשך')),
       ],
     );
   }
 }
 
-class _TermsStep extends StatefulWidget {
-  const _TermsStep({
-    required this.accepted,
-    required this.onToggle,
-    required this.onContinue,
-  });
+class TermsStep extends StatefulWidget {
+  const TermsStep({required this.accepted, required this.onToggle, required this.onContinue});
 
   final bool accepted;
   final ValueChanged<bool> onToggle;
   final VoidCallback onContinue;
 
   @override
-  State<_TermsStep> createState() => _TermsStepState();
+  State<TermsStep> createState() => _TermsStepState();
 }
 
-class _TermsStepState extends State<_TermsStep> {
+class _TermsStepState extends State<TermsStep> {
   bool _termsRead = false;
   bool _privacyRead = false;
   final ScrollController _termsScrollController = ScrollController();
@@ -818,15 +686,9 @@ class _TermsStepState extends State<_TermsStep> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'תנאי השימוש ומדיניות הפרטיות',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-        ),
+        const Text('תנאי השימוש ומדיניות הפרטיות', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        Text(
-          'אנא קרא/י את כל התנאים והמדיניות עד הסוף',
-          style: TextStyle(color: Colors.grey.shade700),
-        ),
+        Text('אנא קרא/י את כל התנאים והמדיניות עד הסוף', style: TextStyle(color: Colors.grey.shade900)),
         const SizedBox(height: 12),
         Container(
           height: 240,
@@ -844,28 +706,12 @@ class _TermsStepState extends State<_TermsStep> {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          'תנאי השימוש',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        const Text('תנאי השימוש', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                         const Spacer(),
                         if (_termsRead)
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 18,
-                          )
+                          Icon(Icons.check_circle, color: Colors.green, size: 18)
                         else
-                          Text(
-                            'קרא/י עד הסוף',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.orange.shade700,
-                            ),
-                          ),
+                          Text('קרא/י עד הסוף', style: TextStyle(fontSize: 11, color: Colors.orange.shade700)),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -875,7 +721,7 @@ class _TermsStepState extends State<_TermsStep> {
                         child: SingleChildScrollView(
                           controller: _termsScrollController,
                           child: const Text(
-                            'ברוכים הבאים ל‑מלאך שומר – אפליקציה קהילתית חכמה המחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה.\n\nעל ידי השימוש באפליקציה, אתם מסכימים לתנאי השימוש ומדיניות הפרטיות.\n\nהאפליקציה אינה תחליף לשירותי חירום. במקרי חירום, יש להתקשר לרשויות (100, 101, 102).\n\nאנו מצפים מכל המשתמשים לנהוג בכבוד זה כלפי זה. הטרדה, תוכן פוגעני או שימוש לרעה יובילו להפסקת השימוש.\n\nהשירות מסופק "כפי שהוא". Local Angel אינה אחראית לנזקים עקיפים או לבעיות טכניות שמחוץ לשליטתה.',
+                            'ברוכים הבאים ל‑מלאך שומר – אפליקציה קהילתית חכמה המחברת בין אנשים עם צרכים מיוחדים למתנדבים מהקהילה.\n\nעל ידי השימוש באפליקציה, אתם מסכימים לתנאי השימוש ומדיניות הפרטיות.\n\nהאפליקציה אינה תחליף לשירותי חירום. במקרי חירום, יש להתקשר לרשויות (100, 101, 102).\n\nאנו מצפים מכל המשתמשים לנהוג בכבוד זה כלפי זה. הטרדה, תוכן פוגעני או שימוש לרעה יובילו להפסקת השימוש.\n\nהשירות מסופק "כפי שהוא". מלאך שומר אינה אחראית לנזקים עקיפים או לבעיות טכניות שמחוץ לשליטתה.',
                             style: TextStyle(fontSize: 13, height: 1.5),
                           ),
                         ),
@@ -892,28 +738,12 @@ class _TermsStepState extends State<_TermsStep> {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          'מדיניות הפרטיות',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        const Text('מדיניות הפרטיות', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                         const Spacer(),
                         if (_privacyRead)
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 18,
-                          )
+                          Icon(Icons.check_circle, color: Colors.green, size: 18)
                         else
-                          Text(
-                            'קרא/י עד הסוף',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.orange.shade700,
-                            ),
-                          ),
+                          Text('קרא/י עד הסוף', style: TextStyle(fontSize: 11, color: Colors.orange.shade700)),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -956,16 +786,11 @@ class _TermsStepState extends State<_TermsStep> {
         const SizedBox(height: 8),
         Row(
           children: [
-            Checkbox(
-              value: widget.accepted,
-              onChanged: canAccept ? (v) => widget.onToggle(v ?? false) : null,
-            ),
+            Checkbox(value: widget.accepted, onChanged: canAccept ? (v) => widget.onToggle(v ?? false) : null),
             Expanded(
               child: Text(
                 'אני מסכים/ה לתנאי השימוש ומדיניות הפרטיות',
-                style: TextStyle(
-                  color: canAccept ? Colors.black87 : Colors.grey.shade400,
-                ),
+                style: TextStyle(color: canAccept ? Colors.grey.shade900 : Colors.grey.shade400),
               ),
             ),
           ],
@@ -979,10 +804,7 @@ class _TermsStepState extends State<_TermsStep> {
             ),
           ),
         const SizedBox(height: 8),
-        FilledButton(
-          onPressed: canContinue ? widget.onContinue : null,
-          child: const Text('המשך'),
-        ),
+        FilledButton(onPressed: canContinue ? widget.onContinue : null, child: const Text('המשך')),
       ],
     );
   }
@@ -1009,33 +831,19 @@ class _LocationStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'הפעלת שירותי מיקום',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-        ),
+        const Text('הפעלת שירותי מיקום', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        Text(
-          'כדי לחבר אותך עם עזרה בקרבת מקום, אנחנו צריכים גישה למיקום שלך.',
-          style: TextStyle(color: Colors.grey.shade700),
-        ),
+        Text('כדי לחבר אותך עם עזרה בקרבת מקום, אנחנו צריכים גישה למיקום שלך.', style: TextStyle(color: Colors.grey.shade700)),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
-            borderRadius: BorderRadius.circular(12),
-          ),
+          decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(12)),
           child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'למה אנחנו צריכים מיקום?',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
+              Text('למה אנחנו צריכים מיקום?', style: TextStyle(fontWeight: FontWeight.w700)),
               SizedBox(height: 8),
-              Text(
-                '• חיבור עם שומרים קרובים\n• הערכת זמן הגעה לעזרה\n• התראות חירום מדויקות',
-              ),
+              Text('• חיבור עם שומרים קרובים\n• הערכת זמן הגעה לעזרה\n• התראות חירום מדויקות'),
             ],
           ),
         ),
@@ -1043,21 +851,11 @@ class _LocationStep extends StatelessWidget {
         FilledButton(
           onPressed: enabled || submitting ? null : onEnable,
           child: submitting
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
+              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
               : const Text('הפעל שירותי מיקום'),
         ),
         const SizedBox(height: 8),
-        if (errorText != null) ...[
-          Text(errorText!, style: const TextStyle(color: Colors.red)),
-          const SizedBox(height: 8),
-        ],
+        if (errorText != null) ...[Text(errorText!, style: const TextStyle(color: Colors.red)), const SizedBox(height: 8)],
         OutlinedButton(onPressed: onContinue, child: const Text('המשך')),
       ],
     );
@@ -1065,12 +863,7 @@ class _LocationStep extends StatelessWidget {
 }
 
 class _ProfilePictureStep extends StatelessWidget {
-  const _ProfilePictureStep({
-    required this.selected,
-    required this.onSelect,
-    required this.onSkip,
-    required this.onComplete,
-  });
+  const _ProfilePictureStep({required this.selected, required this.onSelect, required this.onSkip, required this.onComplete});
 
   final bool selected;
   final VoidCallback onSelect;
@@ -1083,15 +876,9 @@ class _ProfilePictureStep extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'הוספת תמונת פרופיל',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-        ),
+        const Text('הוספת תמונת פרופיל', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        Text(
-          'זה עוזר לקהילה שלך לזהות אותך.',
-          style: TextStyle(color: Colors.grey.shade700),
-        ),
+        Text('זה עוזר לקהילה שלך לזהות אותך.', style: TextStyle(color: Colors.grey.shade700)),
         const SizedBox(height: 16),
         Container(
           height: 220,
@@ -1104,12 +891,7 @@ class _ProfilePictureStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                selected
-                    ? Icons.check_circle_outline
-                    : Icons.camera_alt_outlined,
-                size: 48,
-              ),
+              Icon(selected ? Icons.check_circle_outline : Icons.camera_alt_outlined, size: 48),
               const SizedBox(height: 8),
               Text(selected ? 'תמונה נבחרה' : 'הוספת תמונה (אופציונלי)'),
             ],
@@ -1119,10 +901,7 @@ class _ProfilePictureStep extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: onSkip,
-                child: const Text('דלג/י לעת עתה'),
-              ),
+              child: OutlinedButton(onPressed: onSkip, child: const Text('דלג/י לעת עתה')),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -1152,14 +931,9 @@ class _CompletedStep extends StatelessWidget {
         const SizedBox(height: 16),
         const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 72),
         const SizedBox(height: 16),
-        const Text(
-          'ברוך הבא לקהילה!',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-        ),
+        const Text('ברוך הבא לקהילה!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        const Text(
-          'הגדרת החשבון הושלמה בהצלחה. אתה יכול כעת להתחיל להשתמש באפליקציה.',
-        ),
+        const Text('הגדרת החשבון הושלמה בהצלחה. אתה יכול כעת להתחיל להשתמש באפליקציה.'),
         const SizedBox(height: 16),
         FilledButton(onPressed: onGoHome, child: const Text('מעבר לדף הבית')),
       ],
@@ -1178,11 +952,7 @@ class _ProgressBar extends StatelessWidget {
     final value = (current + 1) / total;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: LinearProgressIndicator(
-        value: value,
-        minHeight: 6,
-        borderRadius: const BorderRadius.all(Radius.circular(4)),
-      ),
+      child: LinearProgressIndicator(value: value, minHeight: 6, borderRadius: const BorderRadius.all(Radius.circular(4))),
     );
   }
 }

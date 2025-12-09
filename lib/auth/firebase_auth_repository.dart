@@ -9,11 +9,11 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'dart:math';
 
-import 'auth_repository.dart';
+import 'package:localangel/auth/auth_repository.dart';
+import 'package:localangel/firebase_options.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository({FirebaseAuth? auth})
-    : _auth = auth ?? FirebaseAuth.instance;
+  FirebaseAuthRepository({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
 
@@ -51,6 +51,7 @@ class FirebaseAuthRepository implements AuthRepository {
       return _auth.signInWithPopup(provider);
     }
     final googleUser = await GoogleSignIn(
+      serverClientId: defaultTargetPlatform == TargetPlatform.iOS ? DefaultFirebaseOptions.ios.iosClientId : null,
       scopes: ['email', 'profile'],
     ).signIn();
     if (googleUser == null) {
@@ -121,16 +122,15 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> linkProvider(SocialProvider provider) async {
     final user = _auth.currentUser;
-    if (user == null)
-      throw FirebaseAuthException(code: 'no-user', message: 'No current user');
+    if (user == null) throw FirebaseAuthException(code: 'no-user', message: 'No current user');
     AuthCredential credential;
     switch (provider) {
       case SocialProvider.google:
         final google = await GoogleSignIn(
+          serverClientId: defaultTargetPlatform == TargetPlatform.iOS ? DefaultFirebaseOptions.ios.iosClientId : null,
           scopes: ['email', 'profile'],
         ).signIn();
-        if (google == null)
-          throw FirebaseAuthException(code: 'canceled', message: 'Canceled');
+        if (google == null) throw FirebaseAuthException(code: 'canceled', message: 'Canceled');
         final ga = await google.authentication;
         credential = GoogleAuthProvider.credential(
           idToken: ga.idToken,
@@ -158,8 +158,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       case SocialProvider.facebook:
         final res = await FacebookAuth.instance.login(permissions: ['email']);
-        if (res.accessToken == null)
-          throw FirebaseAuthException(code: 'canceled', message: 'Canceled');
+        if (res.accessToken == null) throw FirebaseAuthException(code: 'canceled', message: 'Canceled');
         credential = FacebookAuthProvider.credential(
           res.accessToken!.tokenString,
         );
@@ -226,8 +225,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
   // Helpers for Apple nonce
   String _generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
     return List.generate(
       length,
