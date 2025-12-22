@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:localangel/auth/ui/login_signup_page.dart';
 import 'package:localangel/presentation/pages/welcome_page.dart';
+import 'package:localangel/presentation/pages/location_permission_screen.dart';
 
 class AuthLandingScreen extends ConsumerStatefulWidget {
   const AuthLandingScreen({super.key});
@@ -59,7 +59,11 @@ class _AuthLandingScreenState extends ConsumerState<AuthLandingScreen> {
                         accepted: _agree,
                         onToggle: (v) => setState(() => _agree = v),
                         onContinue: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginSignupPage()));
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LocationPermissionScreen(),
+                            ),
+                          );
                         },
                       ),
                     ),

@@ -1,0 +1,320 @@
+---
+alwaysApply: true
+---
+
+Local Angel - Master Product Requirements Document (PRD)
+1. Overview & User Roles
+Product Vision: A community-based application connecting people who need help ("Angels") with local volunteers ("Guardians"), managed by trusted individuals ("Managers") to ensure safety and effective support.
+
+User Roles:
+
+Angel (מלאך): A user who requires support (needs_support=true).
+
+Guardian (שומר): A volunteer who provides help (is_guardian=true).
+
+Manager (מנהל): A Guardian who manages Angels (is_angel_manager=true).
+
+Admin: System administrator for verification and content moderation.
+
+2. Onboarding & Authentication Flow
+Screen: Welcome Page (Entry Point)
+Description: Entry point for all users. Handles login, intro slides, and initial role selection.
+
+UI Elements:
+
+Login Button: "התחברות עם גוגל".
+
+Slideshow: Explains app value.
+
+Role Selection: "אני שומר", "אני מלאך", "אני מנהל".
+
+Terms Checkbox: Consent to legal terms.
+
+Permissions: Request Location & Notifications.
+
+Business Logic:
+
+Auth via Google OAuth.
+
+Creates initial User record.
+
+Screen: Guardian Verification Page (New)
+Description: Ensures Guardians are authentic. Required to receive "Emergency" alerts and "Verified" badge.
+
+UI Elements:
+
+Status Banner: "ממתין לאימות" / "מאומת" / "נדחה".
+
+Phone Verification: Input phone -> Receive SMS OTP -> Verify.
+
+ID Upload: Button to capture/upload government ID photo.
+
+Submit Button: Sends data for Admin review.
+
+Business Logic:
+
+Updates user.verification_status to 'pending'.
+
+Triggers webhook for admin review.
+
+ID image stored in secure, restricted bucket.
+
+Screen: Verification Waiting Page
+Description: Holding screen for Manager/Guardian requests awaiting approval.
+
+UI Elements: Status icon (Clock/Check/X), explanatory text, "Back to Dashboard" button.
+
+3. Core Operation (The "Loop")
+Screen: Dashboard Page (Home)
+Description: The central hub. Dynamic content based on role.
+
+UI Elements:
+
+Header: "Welcome back, [Name]".
+
+Manager Section (New - Logic Added):
+
+"Pending Guardian Requests": List of Guardians asking to help your managed Angels.
+
+Action: "Approve" (allows connection) or "Reject".
+
+Active Events: List of ongoing Pings involved in.
+
+Stats/Progress: Points, badges (for Guardians).
+
+Quick Actions: "Create Request", "Community Feed".
+
+Business Logic:
+
+Loads Pings where status is NOT 'closed'.
+
+Manager view filters for Pings created for their managed_users.
+
+Screen: Create Ping Page
+Description: Creating a help request.
+
+UI Elements:
+
+For Whom? (Manager Only): Dropdown to select Managed Angel.
+
+Urgency: Routine / Urgent / Emergency.
+
+Category: Medical, Mobility, Social, Shopping.
+
+Details: Title (Required), Description.
+
+Guardian Selection:
+
+"Broadcast to Community" (Default).
+
+"Select Specific Guardian" (List showing Verified Badges).
+
+Location: Auto-detected map pin.
+
+Business Logic:
+
+If Manager creates for Angel -> created_by_guardian_id is Manager, requester_id is Angel.
+
+ping_type 'emergency' requires Verified Guardian preference if possible.
+
+Screen: Map & Navigation View (New)
+Description: Accessible from Active Event / Chat. Shows location of the Angel.
+
+UI Elements:
+
+Interactive Map: Shows Angel pin and Guardian pin.
+
+Info Card: Distance ("1.2 km"), EST Time ("5 mins").
+
+Navigate Buttons: "Waze", "Google Maps" (Deep links).
+
+"I've Arrived" Button: Sends auto-message to chat.
+
+Business Logic:
+
+Uses Geolocation API + Google Distance Matrix.
+
+Visible ONLY to assigned Guardian (Privacy).
+
+4. Community & Social
+Screen: Community Page (Feed) (Updated)
+Description: The pulse of the community. Split into Requests and Success Stories.
+
+Tabs:
+
+Tab 1: "קריאות פתוחות" (Open Alerts):
+
+List of Pings needing help.
+
+Filter by Distance/Urgency.
+
+Action: "אני רוצה לעזור" (I want to help).
+
+Logic: If Angel has a Manager -> Button says "Request Approval".
+
+Tab 2: "רגעים של טוב" (Moments/Success) - New:
+
+Feed of completed, public-shared Pings.
+
+Success Card:
+
+"Danny helped Sarah with Groceries".
+
+Photo: Proof of completion photo.
+
+Like Button: ❤️ (Open to all users to support).
+
+Counter: "15 cheers".
+
+Business Logic:
+
+Success feed only shows Pings where is_public_shared = true.
+
+Likes update PingLikes table and notify the Guardian.
+
+Screen: Connections Page
+Description: Managing relationships.
+
+Tabs: My Network (Active), Requests (Pending), Search.
+
+Search: Find users by name/email. Shows Verified Badge.
+
+Action: "Connect" -> Define role (I want to be his Guardian / He is my Angel).
+
+Screen: Public User Profile (New)
+Description: View another user's reputation.
+
+UI Elements:
+
+Avatar, Name, Verified Badge.
+
+Stats: "Helped 50 people", "120 Community Cheers (Likes)".
+
+Badges Grid: Display earned achievements.
+
+Action: "Connect" or "Message" (if connected).
+
+Business Logic:
+
+Respects privacy_settings.
+
+5. Communication & Completion
+Screen: My Chats / Chat Detail
+Description: Real-time communication.
+
+UI Elements:
+
+Chat List: DMs and Group Chats (Ping-based).
+
+Chat View: Messages, Photo Upload, Audio Notes.
+
+Header: Ping Title + Status.
+
+"Complete Request" Button: (Visible to Guardian/Manager).
+
+Dialog: Completion & Proof (New)
+Trigger: Guardian clicks "Complete Request".
+
+UI Elements:
+
+Upload Photo: Proof of task (groceries, smile, etc.).
+
+"Share to Community" Toggle: Permission to post to "Moments" feed.
+
+Submit: Changes status to 'completed_pending_confirmation' or 'completed'.
+
+Modal: Rating & Feedback (New)
+Trigger: Ping status becomes 'completed'. shown to Angel/Manager.
+
+UI Elements:
+
+Star Rating: 1-5.
+
+Feedback: Text area.
+
+"Like & Confirm": 👍 Button to validate the completion and photo.
+
+Business Logic:
+
+Rating affects Guardian's hidden score.
+
+"Like" adds bonus points.
+
+6. Gamification
+Screen: Rewards Page
+Description: Guardian motivation.
+
+UI Elements:
+
+Points: Total & Monthly.
+
+Progress Bar: To next level.
+
+Available Rewards: Coupons/Gifts unlocked by points.
+
+Badges: "First Help", "Weekend Warrior", etc.
+
+Screen: Leaderboard Page
+Description: Competition.
+
+UI Elements:
+
+Top 10 Guardians (Monthly/All-time).
+
+Displays Name, Avatar, Points, and Cheers (Likes) count.
+
+7. User Management & Settings
+Screen: Settings Page
+UI Elements: Profile Edit, Logout.
+
+Guardian Preferences Card (New):
+
+Distance Slider: "Notify me within X km" (1-50km).
+
+Availability Toggle: "Available for Emergency?".
+
+Privacy: "Hide my profile from search".
+
+Screen: My Support Requests
+Description: History for Angels.
+
+UI Elements: List of past Pings, status, and ability to view/rate past help.
+
+8. Admin Interface
+Screen: Admin Verification Dashboard (New)
+Role: Admin only.
+
+UI Elements:
+
+List of pending verifications.
+
+Detail View: User data + ID Image.
+
+Actions: "Approve" (Grants Verified Badge) / "Reject" (Sends reason).
+
+Business Logic:
+
+Approval deletes the ID image from hot storage (privacy) and flips flag in DB.
+
+9. Technical & Data Model Summary
+Key Entities:
+User: id, roles, points, verification_status, guardian_max_distance.
+
+Ping: id, requester_id, guardian_id, status (open, pending_approval, assigned, completed), is_public_shared, completion_photo.
+
+GuardianAssignment: guardian_id, guarded_user_id, is_manager.
+
+PingApplication (New): ping_id, guardian_id, status (pending, approved, rejected).
+
+PingLike (New): ping_id, user_id (For community feed).
+
+Chat/Message: Standard chat schema.
+
+Key Integrations:
+Maps: Google Maps SDK / Distance Matrix.
+
+Auth: Firebase / Google OAuth.
+
+Storage: Cloudinary / S3 (for photos/IDs).
+
+Verification: Third-party ID service (optional) or manual Admin flow.
